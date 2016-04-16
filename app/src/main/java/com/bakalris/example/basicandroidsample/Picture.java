@@ -22,11 +22,17 @@ public class Picture {
     public MatOfPoint destEdges;
     public Mat perspectiveMatrix;
 
+    public Picture() {
+        finalHorizontal = new ArrayList<>();
+        finalVertical = new ArrayList<>();
+    }
+
     public Mat getImage() {
         return image;
     }
 
     public void setImage(Mat image) {
+        this.image = new Mat(image.rows(),image.cols(),image.type());
         image.copyTo(this.image);
     }
 
@@ -35,6 +41,7 @@ public class Picture {
     }
 
     public void setGrayscale(Mat grayscale) {
+        this.grayscale = new Mat(grayscale.rows(),grayscale.cols(),grayscale.type());
         grayscale.copyTo(this.grayscale);
     }
 
@@ -43,6 +50,7 @@ public class Picture {
     }
 
     public void setThresholded(Mat thresholded) {
+        this.thresholded = new Mat(thresholded.rows(),thresholded.cols(),thresholded.type());
         thresholded.copyTo(this.thresholded);
     }
 
@@ -89,13 +97,16 @@ public class Picture {
 
     public void mergeLines(Mat lines) {
 
+        System.out.println("DEBUGGING-lines- cols:" + Integer.toString(lines.cols()));
+        System.out.println("DEBUGGING-lines- rows:" + Integer.toString(lines.rows()));
+
         ArrayList<Point[]> vectorOfLines = new ArrayList<>();
 
-        for (int x = 0; x < lines.cols(); x++) {
+        for (int x = 0; x < lines.rows(); x++) {
 
             Point[] p = new Point[2];
 
-            double[] vec = lines.get(0, x);
+            double[] vec = lines.get(x, 0);
             double x1 = vec[0],
                     y1 = vec[1],
                     x2 = vec[2],
@@ -111,12 +122,19 @@ public class Picture {
 
         int[] labels = partitioner.partition(vectorOfLines);
 
+        System.out.println("DEBUGGING-- pocet ciar:" + Integer.toString(vectorOfLines.size()));
+        System.out.println("DEBUGGING-- velkost pola labels:" + Integer.toString(labels.length));
+        System.out.println("DEBUGGING-- premenna getNclasses:" + Integer.toString(partitioner.getNclasses()));
 
         ArrayList<Point[]> mergedLines = new ArrayList<>(partitioner.getNclasses());
 
-        for(int i = 0; i<mergedLines.size(); i++) {
-            mergedLines.get(i)[0] = new Point(Double.MAX_VALUE, Double.MAX_VALUE);
-            mergedLines.get(i)[1] = new Point(-1, -1);
+        System.out.println("DEBUGGING-- mergedLines size:" + Integer.toString(mergedLines.size()));
+
+        for(int i = 0; i<partitioner.getNclasses(); i++) {
+            Point[] p = new Point[2];
+            p[0] = new Point(Double.MAX_VALUE, Double.MAX_VALUE);
+            p[1] = new Point(-1, -1);
+            mergedLines.add(p);
         }
 
 
@@ -137,6 +155,7 @@ public class Picture {
             /***********AK NEBOLA MERGE LINE ESTE INICIALIZOVANA**********/
 
 
+            System.out.println("DEBUGGING-- mergedLines size2:" + Integer.toString(mergedLines.size()));
 
             if(mergedLines.get(labels[i])[0].x == Double.MAX_VALUE && mergedLines.get(labels[i])[0].y == Double.MAX_VALUE || mergedLines.get(labels[i])[1].x == -1 && mergedLines.get(labels[i])[1].y == -1) {
 
@@ -239,6 +258,9 @@ public class Picture {
 
         /****************************************************************/
 
+        finalHorizontal = new ArrayList<>();
+        finalVertical = new ArrayList<>();
+
         for(int i = 0; i < mergedLines.size(); i++) {
             if(Math.abs(mergedLines.get(i)[1].x - mergedLines.get(i)[0].x) > Math.abs(mergedLines.get(i)[1].y - mergedLines.get(i)[0].y)) {
                 if(CustomMathOperations.lineLength(mergedLines.get(i)[0],mergedLines.get(i)[1]) >= thresholded.cols()*0.3) {
@@ -249,6 +271,12 @@ public class Picture {
                     finalVertical.add(new MergedLine(mergedLines.get(i)[0], mergedLines.get(i)[1]));
                 }
             }
+        }
+
+        if(finalHorizontal.size() == 0 || finalVertical.size() == 0) {
+
+            System.out.println("DEBUGGING-- Ziadne zmergovane ciary!");
+            return;
         }
 
         Collections.sort(finalHorizontal, new CustomHorizontalLineComparator());

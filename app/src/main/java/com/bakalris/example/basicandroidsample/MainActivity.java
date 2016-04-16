@@ -364,11 +364,22 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     @Override
     public Mat onCameraFrame(final CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         // first of all think of what you need to do before you do it
-        if (mViewMode == DEMO) {
-            return littleBitOfPreprocessing(inputFrame, roundRobinMode(COUNT_OF_DEMO_MODES, WHOLE_DEMO_TIME));
-        }
-        return littleBitOfPreprocessing(inputFrame, mViewMode);
+//        if (mViewMode == DEMO) {
+//            return littleBitOfPreprocessing(inputFrame, roundRobinMode(COUNT_OF_DEMO_MODES, WHOLE_DEMO_TIME));
+//        }
+//        return littleBitOfPreprocessing(inputFrame, mViewMode);
 
+        System.out.println("CONTROLLER: preprocessing started!");
+
+        inputFrame.rgba().copyTo(mRgba);
+        inputFrame.gray().copyTo(mGray);
+
+        Controller controller = new Controller(mRgba,mGray);
+        controller.preprocessImage();
+
+        System.out.println("CONTROLLER: preprocessing passed!");
+
+        return controller.drawMergedLines(mRgba);
     }
 
     public static final int COUNT_OF_DEMO_MODES = 5;
@@ -387,7 +398,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
 
 
-
+/*
         switch (mode) {
             case NORMAL:
                 mRgba = inputFrame.rgba();
@@ -457,10 +468,10 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             case FIND_LETTERS:
                 // TODO : detect letters with cascade filter
                 // TODO : stop camera preview and show only progress bar
-                /* TODO : run new async task for background processing of found objects
-                           and don`t forget to restore preview and hide progress bar
-                */
-
+                // TODO : run new async task for background processing of found objects
+                //           and don`t forget to restore preview and hide progress bar
+                //
+                //
                 // TODO : set some timer to kill the task if not done under 30 sec
                 //
             default:
@@ -474,7 +485,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         //
         // Otherwise our screen freeze until processing is done, which is bad UI pattern.
         //  Thus something like contours, exhausting search etc. is not suitable here.
-
+        */
 
         return mRgba;
     }
