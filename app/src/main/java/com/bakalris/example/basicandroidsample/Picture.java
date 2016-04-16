@@ -3,8 +3,10 @@ package com.bakalris.example.basicandroidsample;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
+import org.opencv.core.Point;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * Created by Mirko on 16.4.2016.
@@ -14,11 +16,11 @@ public class Picture {
     public Mat image;
     public Mat grayscale;
     public Mat thresholded;
-    ArrayList<MergedLine> finalHorizontal;
-    ArrayList<MergedLine> finalVertical;
-    MatOfPoint2f poi;
-    MatOfPoint destEdges;
-    Mat perspectiveMatrix;
+    public ArrayList<MergedLine> finalHorizontal;
+    public ArrayList<MergedLine> finalVertical;
+    public MatOfPoint2f poi;
+    public MatOfPoint destEdges;
+    public Mat perspectiveMatrix;
 
     public Mat getImage() {
         return image;
@@ -83,4 +85,177 @@ public class Picture {
     public void setPerspectiveMatrix(Mat perspectiveMatrix) {
         perspectiveMatrix.copyTo(this.perspectiveMatrix);
     }
+
+
+    public void mergeLines(Mat lines) {
+
+        ArrayList<Point[]> vectorOfLines = new ArrayList<>();
+
+        for (int x = 0; x < lines.cols(); x++) {
+
+            Point[] p = new Point[2];
+
+            double[] vec = lines.get(0, x);
+            double x1 = vec[0],
+                    y1 = vec[1],
+                    x2 = vec[2],
+                    y2 = vec[3];
+            p[0] = new Point(x1, y1);
+            p[1] = new Point(x2, y2);
+
+            vectorOfLines.add(p);
+
+        }
+
+        LinePartitioner partitioner = new LinePartitioner();
+
+        int[] labels = partitioner.partition(vectorOfLines);
+
+
+        ArrayList<Point[]> mergedLines = new ArrayList<>(partitioner.getNclasses());
+
+        for(int i = 0; i<mergedLines.size(); i++) {
+            mergedLines.get(i)[0] = new Point(Double.MAX_VALUE, Double.MAX_VALUE);
+            mergedLines.get(i)[1] = new Point(-1, -1);
+        }
+
+
+
+        for(int i=0; i<vectorOfLines.size();i++) {
+
+            double x1 = vectorOfLines.get(i)[0].x; // lines[i][0];
+            double y1 = vectorOfLines.get(i)[0].y; //lines[i][1];
+            double x2 = vectorOfLines.get(i)[1].x; //lines[i][2];
+            double y2 = vectorOfLines.get(i)[1].y; //lines[i][3];
+
+
+            // int *minX = &mergedLines[labels[i]][0]; === mergedLines.get(labels[i])[0].x
+            // int *minY = &mergedLines[labels[i]][1]; === mergedLines.get(labels[i])[0].y
+            // int *maxX = &mergedLines[labels[i]][2]; === mergedLines.get(labels[i])[1].x
+            // int *maxY = &mergedLines[labels[i]][3]; === mergedLines.get(labels[i])[1].y
+
+            /***********AK NEBOLA MERGE LINE ESTE INICIALIZOVANA**********/
+
+
+
+            if(mergedLines.get(labels[i])[0].x == Double.MAX_VALUE && mergedLines.get(labels[i])[0].y == Double.MAX_VALUE || mergedLines.get(labels[i])[1].x == -1 && mergedLines.get(labels[i])[1].y == -1) {
+
+                if(mergedLines.get(labels[i])[0].x == Double.MAX_VALUE && mergedLines.get(labels[i])[0].y == Double.MAX_VALUE) {
+                    if(Math.abs(x2-x1) > Math.abs(y2-y1)) {
+                        if(x1<x2) {
+                            mergedLines.get(labels[i])[0].x = x1;
+                            mergedLines.get(labels[i])[0].y = y1;
+                        } else {
+                            mergedLines.get(labels[i])[0].x = x2;
+                            mergedLines.get(labels[i])[0].y = y2;
+                        }
+
+                    } else {
+                        if(y1<y2) {
+                            mergedLines.get(labels[i])[0].x = x1;
+                            mergedLines.get(labels[i])[0].y = y1;
+                        } else {
+                            mergedLines.get(labels[i])[0].x = x2;
+                            mergedLines.get(labels[i])[0].y = y2;
+                        }
+
+                    }
+                }
+
+                if(mergedLines.get(labels[i])[1].x == -1 && mergedLines.get(labels[i])[1].y == -1) {
+                    if(Math.abs(x2-x1) > Math.abs(y2-y1)) {
+                        if(x1>x2) {
+                            mergedLines.get(labels[i])[1].x = x1;
+                            mergedLines.get(labels[i])[1].y = y1;
+                        } else {
+                            mergedLines.get(labels[i])[1].x = x2;
+                            mergedLines.get(labels[i])[1].y = y2;
+                        }
+                    } else {
+                        if(y1<y2) {
+                            mergedLines.get(labels[i])[1].x = x1;
+                            mergedLines.get(labels[i])[1].y = y1;
+                        } else {
+                            mergedLines.get(labels[i])[1].x = x2;
+                            mergedLines.get(labels[i])[1].y = y2;
+                        }
+                    }
+                }
+
+                continue;
+            }
+
+            /*****************************/
+
+            if(Math.abs(mergedLines.get(labels[i])[1].x - mergedLines.get(labels[i])[0].x) > Math.abs(mergedLines.get(labels[i])[1].y - mergedLines.get(labels[i])[0].y)) {
+                if(x1 < x2) {
+                    if(x1 < mergedLines.get(labels[i])[0].x) {
+                        mergedLines.get(labels[i])[0].x = x1;
+                        mergedLines.get(labels[i])[0].y = y1;
+                    }
+
+                    if(x2 > mergedLines.get(labels[i])[1].x) {
+                        mergedLines.get(labels[i])[1].x = x2;
+                        mergedLines.get(labels[i])[1].y = y2;
+                    }
+                } else {
+                    if(x2 < mergedLines.get(labels[i])[0].x) {
+                        mergedLines.get(labels[i])[0].x = x2;
+                        mergedLines.get(labels[i])[0].y = y2;
+                    }
+
+                    if(x1 > mergedLines.get(labels[i])[1].x) {
+                        mergedLines.get(labels[i])[1].x = x1;
+                        mergedLines.get(labels[i])[1].y = y1;
+                    }
+                }
+            } else {
+                if(y1 < y2) {
+                    if(y1 < mergedLines.get(labels[i])[0].y) {
+                        mergedLines.get(labels[i])[0].x = x1;
+                        mergedLines.get(labels[i])[0].y = y1;
+                    }
+
+                    if(y2 > mergedLines.get(labels[i])[1].y) {
+                        mergedLines.get(labels[i])[1].x = x2;
+                        mergedLines.get(labels[i])[1].y = y2;
+                    }
+                } else {
+                    if(y2 < mergedLines.get(labels[i])[0].y) {
+                        mergedLines.get(labels[i])[0].x = x2;
+                        mergedLines.get(labels[i])[0].y = y2;
+                    }
+
+                    if(y1 > mergedLines.get(labels[i])[1].y) {
+                        mergedLines.get(labels[i])[1].x = x1;
+                        mergedLines.get(labels[i])[1].y = y1;
+                    }
+                }
+            }
+
+        }
+
+
+
+        /****************************************************************/
+
+        for(int i = 0; i < mergedLines.size(); i++) {
+            if(Math.abs(mergedLines.get(i)[1].x - mergedLines.get(i)[0].x) > Math.abs(mergedLines.get(i)[1].y - mergedLines.get(i)[0].y)) {
+                if(CustomMathOperations.lineLength(mergedLines.get(i)[0],mergedLines.get(i)[1]) >= thresholded.cols()*0.3) {
+                    finalHorizontal.add(new MergedLine(mergedLines.get(i)[0], mergedLines.get(i)[1]));
+                }
+            } else {
+                if(CustomMathOperations.lineLength(mergedLines.get(i)[0],mergedLines.get(i)[1]) >= thresholded.rows()*0.3) {
+                    finalVertical.add(new MergedLine(mergedLines.get(i)[0], mergedLines.get(i)[1]));
+                }
+            }
+        }
+
+        Collections.sort(finalHorizontal, new CustomHorizontalLineComparator());
+        Collections.sort(finalVertical, new CustomVerticalLineComparator());
+
+
+    }
+
+
 }

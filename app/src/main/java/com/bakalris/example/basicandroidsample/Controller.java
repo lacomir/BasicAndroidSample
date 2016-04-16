@@ -73,6 +73,8 @@ public class Controller {
 
         Imgproc.HoughLinesP(picture.getThresholded(), lines, 1, Math.PI / 180, threshold, minLineSize, lineGap);
 
+        picture.mergeLines(lines);
+
     }
 
 
