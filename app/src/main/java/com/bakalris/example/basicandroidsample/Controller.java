@@ -3,11 +3,13 @@ package com.bakalris.example.basicandroidsample;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
+import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.core.Size;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Mirko on 16.4.2016.
@@ -16,7 +18,7 @@ public class Controller {
 
     public String file;
     public Picture picture;
-    public ArrayList<ArrayList<Letter>> hlavolam;
+    public Hlavolam hlavolam;
 
 
     Controller(Mat mRgba, Mat mGray) {
@@ -136,60 +138,69 @@ public class Controller {
 
     }
 
-    /*public void segmentSudoku() {
-        vector<vector<Point2f>> field;
+    public void segmentSudoku() {
 
+        List<Point> pts = new ArrayList<>();
+
+        /*
+        pts = picture.poi.toList();
+        ArrayList<ArrayList<Point>> field = new ArrayList<>();
+
+        for(int i = 0; i < 10; i++) {
+            field.add(new ArrayList<Point>());
+            for (int j = 0; j < 10; j++) {
+                field.get(i).add(pts.get(i*10+j));
+            }
+        }
+        */
+        /*
         for(int i = 0; i < 10; i++)
         {
             vector<Point2f> vec(picture.poi.begin() + (i*10), picture.poi.begin() + (i+1)*10);
             field.push_back(vec);
         }
+        */
 
-        vector<vector<Letter>> sudoku;
+        Sudoku sudoku = new Sudoku();
 
         for(int i = 0; i < 9; i++)
         {
-            sudoku.push_back(vector<Letter>());
+            //sudoku.push_back(vector<Letter>());
             for(int j = 0; j < 9; j++)
             {
-                int shiftX = picture.grayscale.cols / 50;
-                int shiftY = picture.grayscale.rows / 100;
+                int shiftX = picture.grayscale.cols() / 50;
+                int shiftY = picture.grayscale.rows() / 100;
 
-                sudoku[i].push_back(Letter());
+                //sudoku[i].push_back(Letter());
+
+                Point[] futureRect = new Point[4];
+                futureRect[0] = new Point(pts.get(i*10+j).x + shiftX, pts.get(i*10+j).y + shiftY);
+                futureRect[1] = new Point(pts.get(i*10+(j+1)).x - shiftX, pts.get(i*10+(j+1)).y + shiftY);
+                futureRect[2] = new Point(pts.get((i+1)*10+j).x + shiftX, pts.get((i+1)*10+j).y - shiftY);
+                futureRect[2] = new Point(pts.get((i+1)*10+(j+1)).x - shiftX, pts.get((i+1)*10+(j+1)).y - shiftY);
+
+                sudoku.getNumbers()[i][j].setSegment(new MatOfPoint(futureRect));
+
+                /*
                 sudoku[i][j].segment.push_back(Point2f(field[i][j].x + shiftX, field[i][j].y + shiftY)); // posunut hodnoty dovnutra stvorceka
                 sudoku[i][j].segment.push_back(Point2f(field[i][j+1].x - shiftX, field[i][j+1].y + shiftY));
                 sudoku[i][j].segment.push_back(Point2f(field[i+1][j].x + shiftX, field[i+1][j].y - shiftY));
                 sudoku[i][j].segment.push_back(Point2f(field[i+1][j+1].x - shiftX, field[i+1][j+1].y - shiftY));
+                */
 
-                sudoku[i][j].rect = boundingRect( Mat(sudoku[i][j].segment) );
+                sudoku.getNumbers()[i][j].setRect(Imgproc.boundingRect(sudoku.getNumbers()[i][j].segment));
             }
         }
 
-        #ifdef DEBUG
 
-        RNG rng(12345);
+        sudoku.findNumbers(picture);
 
-        for(int i = 0; i < 9; i++)
-        {
-            for(int j = 0; j < 9; j++)
-            {
-                Scalar color = Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
-                rectangle( picture.grayscale, sudoku[i][j].rect.tl(), sudoku[i][j].rect.br(), color, 1, 8, 0 );
-
-            }
-        }
-
-        tosave.push_back(new ToSave(picture.grayscale, "Bounding Rects"));
-
-
-        #endif
-
-            sudoku = findNumbers(sudoku, picture.thresholded);
 
         hlavolam = sudoku;
 
+
     }
-*/
+
     public Mat drawMergedLines(Mat mRgba) {
 
         for(int i = 0; i < picture.finalHorizontal.size(); i++) {

@@ -2,6 +2,7 @@ package com.bakalris.example.basicandroidsample;
 
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
+import org.opencv.core.Point;
 import org.opencv.core.Rect;
 
 import java.util.ArrayList;
@@ -15,10 +16,17 @@ public class Letter {
     Rect rect;
     Rect boundRect;
     Mat mask;
-    MatOfPoint points;
+    ArrayList<Point> points;
     ArrayList<Double> characteristics;
     Boolean hasChar;
     String character;
+
+    public Letter() {
+
+        points = new ArrayList<>();
+        characteristics = new ArrayList<>();
+
+    }
 
     public MatOfPoint getSegment() {
         return segment;
@@ -52,11 +60,11 @@ public class Letter {
         this.mask = mask;
     }
 
-    public MatOfPoint getPoints() {
+    public ArrayList<Point> getPoints() {
         return points;
     }
 
-    public void setPoints(MatOfPoint points) {
+    public void setPoints(ArrayList<Point> points) {
         this.points = points;
     }
 
