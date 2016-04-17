@@ -2,6 +2,7 @@ package com.bakalris.example.basicandroidsample;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.core.Size;
@@ -75,8 +76,18 @@ public class Controller {
 
         Imgproc.HoughLinesP(picture.getThresholded(), lines, 1, Math.PI / 180, threshold, minLineSize, lineGap);
 
-        if(lines.cols() > 0)
-            picture.mergeLines(lines);
+        if(lines.cols() < 1)
+            return; //TO-DO: exception here
+
+        picture.mergeLines(lines);
+
+        picture.findPointsOfIntersection();
+
+        picture.findIntersectionQuad();
+
+        picture.createPerspectiveMatrix();
+
+
 
     }
 
@@ -95,6 +106,27 @@ public class Controller {
         }
 
         return mRgba;
+
+    }
+
+    public Mat drawMergedLinesAfterTransform() {
+
+        Mat rgba = new Mat(picture.thresholded.size(),picture.thresholded.type());
+        picture.thresholded.copyTo(rgba);
+
+        for(int i = 0; i < picture.finalHorizontal.size(); i++) {
+
+            Imgproc.line(rgba, picture.finalHorizontal.get(i).getStart(), picture.finalHorizontal.get(i).getEnd(), new Scalar(255, 0, 0), 3);
+
+        }
+
+        for(int i = 0; i < picture.finalVertical.size(); i++) {
+
+            Imgproc.line(rgba, picture.finalVertical.get(i).getStart(), picture.finalVertical.get(i).getEnd(), new Scalar(255, 0, 0), 3);
+
+        }
+
+        return rgba;
 
     }
 

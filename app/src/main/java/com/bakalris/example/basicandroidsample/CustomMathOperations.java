@@ -119,7 +119,7 @@ public class CustomMathOperations {
 
 
 
-    public Boolean intersectionBelongsSegments(Point[] ab, Point[] cd, Point q) {
+    public static Boolean intersectionBelongsSegments(Point[] ab, Point[] cd, Point q) {
         Point p = ab[0];
         Point r = ab[1];
 
@@ -136,7 +136,7 @@ public class CustomMathOperations {
         return false;
     }
 
-    public Point intersection(Point[] ab, Point[] cd, int width, int height) {
+    public static Point intersection(Point[] ab, Point[] cd, int width, int height) {
 
         Point A = ab[0];
         Point B = ab[1];
@@ -185,7 +185,6 @@ public class CustomMathOperations {
             return new Point(-1,-1); //false
 
     }
-
 
 
 

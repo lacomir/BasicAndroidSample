@@ -1,12 +1,15 @@
 package com.bakalris.example.basicandroidsample;
 
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
+import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Created by Mirko on 16.4.2016.
@@ -18,13 +21,17 @@ public class Picture {
     public Mat thresholded;
     public ArrayList<MergedLine> finalHorizontal;
     public ArrayList<MergedLine> finalVertical;
-    public MatOfPoint2f poi;
-    public MatOfPoint destEdges;
+    public MatOfPoint poi;
+    public ArrayList<Point> intersectionQuad;
+    public ArrayList<Point> destEdges;
+    public int transformedWidth;
+    public int transformedHeight;
     public Mat perspectiveMatrix;
 
     public Picture() {
         finalHorizontal = new ArrayList<>();
         finalVertical = new ArrayList<>();
+        destEdges = new ArrayList<>();
     }
 
     public Mat getImage() {
@@ -70,19 +77,19 @@ public class Picture {
         this.finalVertical = finalVertical;
     }
 
-    public MatOfPoint2f getPoi() {
+    public MatOfPoint getPoi() {
         return poi;
     }
 
-    public void setPoi(MatOfPoint2f poi) {
+    public void setPoi(MatOfPoint poi) {
         this.poi = poi;
     }
 
-    public MatOfPoint getDestEdges() {
+    public ArrayList<Point> getDestEdges() {
         return destEdges;
     }
 
-    public void setDestEdges(MatOfPoint destEdges) {
+    public void setDestEdges(ArrayList<Point> destEdges) {
         this.destEdges = destEdges;
     }
 
@@ -281,6 +288,311 @@ public class Picture {
 
         Collections.sort(finalHorizontal, new CustomHorizontalLineComparator());
         Collections.sort(finalVertical, new CustomVerticalLineComparator());
+
+
+    }
+
+    public void findPointsOfIntersection() {
+
+        List<Point> points = new ArrayList<Point>();
+
+        for(int i = 0;i<finalHorizontal.size();i++) {
+            for(int j = 0; j<finalVertical.size();j++) {
+
+                Point[] ab = new Point[2];
+                ab[0] = finalHorizontal.get(i).getStart();
+                ab[1] = finalHorizontal.get(i).getEnd();
+
+                Point[] cd = new Point[2];
+                cd[0] = finalVertical.get(j).getStart();
+                cd[1] = finalVertical.get(j).getEnd();
+
+                Point r = CustomMathOperations.intersection(ab, cd, grayscale.cols(), grayscale.rows());
+
+                if(r.x != -1 || r.y != -1) {
+
+                    points.add(r);
+
+                    Intersection i1 = new Intersection();
+                    i1.setId(j);
+                    i1.setPoi(r);
+                    finalHorizontal.get(i).getIntersection().add(i1);
+
+                    Intersection i2 = new Intersection();
+                    i2.setId(i);
+                    i2.setPoi(r);
+                    finalVertical.get(j).getIntersection().add(i2);
+
+                }
+            }
+        }
+
+        poi.fromList(points);
+
+        return;
+
+    }
+
+
+    public void findIntersectionQuad() {
+
+        int padLeft = -1;
+        int padRight = -1;
+        int padTop = -1;
+        int padBottom = -1;
+
+        int pom1 = 0;
+        int pom2 = 0;
+        for(int i = 0; i < finalVertical.size(); i++) {
+
+            if(pom1 + pom2 > finalVertical.size())
+                return;
+
+            if(padLeft == -1 && finalVertical.get(i).intersection.size() > 0)
+                padLeft = i;
+
+            if(padRight == -1 && finalVertical.get(finalVertical.size() - i - 1).intersection.size() > 0)
+                padRight = i;
+
+            if(padLeft != -1 && padRight != -1)
+                break;
+
+            if(padLeft != -1)
+                pom1++;
+
+            if(padRight != -1)
+                pom2++;
+
+        }
+
+        pom1 = 0;
+        pom2 = 0;
+        for(int i = 0; i < finalHorizontal.size(); i++) {
+
+            if(pom1 + pom2 > finalHorizontal.size())
+                return;
+
+            if(padTop == -1 && finalHorizontal.get(i).intersection.size() > 0)
+                padTop = i;
+
+            if(padBottom == -1 && finalHorizontal.get(finalHorizontal.size() - i - 1).intersection.size() > 0)
+                padBottom = i;
+
+            if(padTop != -1 && padBottom != -1)
+                break;
+
+            if(padTop != -1)
+                pom1++;
+
+            if(padBottom != -1)
+                pom2++;
+
+        }
+
+        int endOfCycle = Math.min((finalHorizontal.size()/2),(finalVertical.size()/2));
+
+        for(int i=0; i < endOfCycle;i++) {
+
+            intersectionQuad = findIntersectionQuadVar(i,0+padTop,0+padLeft,0+padRight,0+padBottom); //tie inty dat do vector a podla cyklu indexu ich posielat
+            if(intersectionQuad != null)
+                return;
+
+            intersectionQuad = findIntersectionQuadVar(i,1+padTop,0+padLeft,0+padRight,0+padBottom);
+            if(intersectionQuad != null)
+                return;
+            intersectionQuad = findIntersectionQuadVar(i,0+padTop,1+padLeft,0+padRight,0+padBottom);
+            if(intersectionQuad != null)
+                return;
+            intersectionQuad = findIntersectionQuadVar(i,0+padTop,0+padLeft,1+padRight,0+padBottom);
+            if(intersectionQuad != null)
+                return;
+            intersectionQuad = findIntersectionQuadVar(i,0+padTop,0+padLeft,0+padRight,1+padBottom);
+            if(intersectionQuad != null)
+                return;
+            intersectionQuad = findIntersectionQuadVar(i,0+padTop,0+padLeft,1+padRight,1+padBottom);
+            if(intersectionQuad != null)
+                return;
+            intersectionQuad = findIntersectionQuadVar(i,0+padTop,1+padLeft,1+padRight,0+padBottom);
+            if(intersectionQuad != null)
+                return;
+            intersectionQuad = findIntersectionQuadVar(i,1+padTop,1+padLeft,0+padRight,0+padBottom);
+            if(intersectionQuad != null)
+                return;
+            intersectionQuad = findIntersectionQuadVar(i,1+padTop,1+padLeft,1+padRight,0+padBottom);
+            if(intersectionQuad != null)
+                return;
+            intersectionQuad = findIntersectionQuadVar(i,0+padTop,1+padLeft,1+padRight,1+padBottom);
+            if(intersectionQuad != null)
+                return;
+
+
+
+        }
+
+        return;
+
+
+    }
+
+    private ArrayList<Point> findIntersectionQuadVar(int i, int a, int b, int c, int d) {
+        Point got1 = new Point(-1,-1);
+        Point got2 = new Point(-1,-1);
+
+        for(int j=0;j< finalHorizontal.get(i + a).intersection.size();j++) {
+
+            if(finalHorizontal.get(i + a).intersection.get(j).id == i+b)
+                got1 = finalHorizontal.get(i + a).intersection.get(j).poi;
+            if(finalHorizontal.get(i + a).intersection.get(j).id == (finalVertical.size()-1-i-c))
+                got2 = finalHorizontal.get(i + a).intersection.get(j).poi;
+
+            if(got1.x != -1 && got2.x != -1)
+                break;
+
+        }
+
+        if(got1.x == -1 || got2.x == -1)
+            return null;
+
+        Point got3 = new Point(-1,-1);
+        Point got4 = new Point(-1,-1);
+
+        int horizontalMax = finalHorizontal.size()-1-i-d;
+
+        for(int j=0;j< finalHorizontal.get(horizontalMax).intersection.size();j++) {
+
+            if(finalHorizontal.get(horizontalMax).intersection.get(j).id == i+b)
+                got3 = finalHorizontal.get(horizontalMax).intersection.get(j).poi;
+            if(finalHorizontal.get(horizontalMax).intersection.get(j).id == (finalVertical.size()-1-i-c))
+                got4 = finalHorizontal.get(horizontalMax).intersection.get(j).poi;
+
+            if(got3.x != -1 && got4.x != -1) {
+
+                ArrayList<Point> result = new ArrayList<>();
+                result.add(got1);
+                result.add(got2);
+                result.add(got3);
+                result.add(got4);
+
+                return result;
+            }
+        }
+
+        return null;
+    }
+
+
+    public void createPerspectiveMatrix() {
+
+        Point leftmin = intersectionQuad.get(0);
+        Point rightmin = intersectionQuad.get(1);
+        Point leftmax = intersectionQuad.get(2);
+        Point rightmax = intersectionQuad.get(3);
+
+
+        double longerX = Math.max(rightmax.x,rightmin.x) - Math.min(leftmax.x,leftmin.x);
+        double shorterX = Math.min(rightmax.x,rightmin.x) - Math.max(leftmax.x,leftmin.x);
+        double deltaX = longerX - shorterX;
+
+        double longerY = Math.max(leftmax.y,rightmax.y) - Math.min(leftmin.y,rightmin.y);
+        double shorterY = Math.min(leftmax.y,rightmax.y) - Math.max(leftmin.y,rightmin.y);
+        double deltaY = longerY - shorterY;
+
+        double deltaLeftPts = 1.5 * Math.abs(leftmin.x-leftmax.x); //1.5 nahradit premennou zavisejucou od vzdialenosti laveho horneho rohu a horneho okraja obrazku?
+
+        Point destLeftMin = new Point(Math.min(leftmin.x,leftmax.x) + deltaLeftPts, Math.min(leftmin.y, rightmin.y) + deltaY);
+        Point destRightMin = new Point(Math.max(rightmin.x, rightmax.x) + deltaLeftPts,Math.min(leftmin.y, rightmin.y) + deltaY);
+        Point destLeftMax = new Point(Math.min(leftmin.x, leftmax.x) + deltaLeftPts,Math.max(leftmax.y, rightmax.y) + deltaY + deltaX);
+        Point destRightMax = new Point(Math.max(rightmin.x, rightmax.x) + deltaLeftPts,Math.max(leftmax.y, rightmax.y) + deltaY + deltaX);
+
+
+        Mat destIntersections = new Mat(4,1, CvType.CV_32FC2);
+        destIntersections.put(0,0,destLeftMin.x,destLeftMin.y,destRightMin.x,destRightMin.y, destLeftMax.x,destLeftMax.y,destRightMax.x,destRightMax.y);
+
+        /*
+        destIntersections.push_back(destLeftMin);
+        destIntersections.push_back(destRightMin);
+        destIntersections.push_back(destLeftMax);
+        destIntersections.push_back(destRightMax);
+        */
+
+        Mat intersections = new Mat(4,1, CvType.CV_32FC2);
+        intersections.put(0,0,leftmin.x,leftmin.y,rightmin.x,rightmin.y, leftmax.x,leftmax.y,rightmax.x,rightmax.y);
+
+        //Mat perspectiveMatrix = Mat::zeros(picture.grayscale.rows, picture.grayscale.cols, picture.grayscale.type());
+        perspectiveMatrix = Imgproc.getPerspectiveTransform(intersections, destIntersections);
+
+
+        transformedHeight = (grayscale.rows() + (int) deltaX + ((int) deltaY << 1));
+        transformedWidth = (grayscale.cols() + (int) deltaX +  + (int) deltaLeftPts);
+
+        destEdges.add(new Point(destLeftMin.x,destLeftMin.y));
+        destEdges.add(new Point(destRightMin.x,destRightMin.y));
+        destEdges.add(new Point(destLeftMax.x,destLeftMax.y));
+        destEdges.add(new Point(destRightMax.x,destRightMax.y));
+
+
+        performPerspectiveTransformation();
+
+        return;
+
+    }
+
+
+    public void performPerspectiveTransformation() //perspektivna transformacia zatial iba pre grayscale image, thresholded image, points of intersections ciar a pre koncove body ciar
+    {
+        Mat transformedGray = Mat.zeros(transformedHeight,transformedWidth,grayscale.type());
+        Mat transformedThresh = Mat.zeros(transformedHeight,transformedWidth,grayscale.type());
+
+        Imgproc.warpPerspective(grayscale, transformedGray, perspectiveMatrix, transformedGray.size());
+        Imgproc.warpPerspective(thresholded,transformedThresh,perspectiveMatrix,transformedThresh.size());
+
+        grayscale =transformedGray;
+        thresholded=transformedThresh;
+
+        MatOfPoint transformedPoi = new MatOfPoint(poi);
+
+        Imgproc.warpPerspective(poi, transformedPoi, perspectiveMatrix,poi.size());
+
+        poi = transformedPoi;
+
+        for(int i = 0; i < finalHorizontal.size(); i++)
+        {
+
+            Point[] tempLineArr = new Point[2];
+            tempLineArr[0] = finalHorizontal.get(i).getStart();
+            tempLineArr[1] = finalHorizontal.get(i).getEnd();
+            MatOfPoint tempLineMat = new MatOfPoint();
+            tempLineMat.fromArray(tempLineArr);
+
+            MatOfPoint line = new MatOfPoint(tempLineMat);
+
+            Imgproc.warpPerspective(tempLineMat, line, perspectiveMatrix,tempLineMat.size());
+
+            Point[] lineArr = line.toArray();
+
+            finalHorizontal.get(i).setStart(lineArr[0]);
+            finalHorizontal.get(i).setEnd(lineArr[1]);
+
+        }
+
+        for(int i = 0; i < finalVertical.size(); i++)
+        {
+
+            Point[] tempLineArr = new Point[2];
+            tempLineArr[0] = finalVertical.get(i).getStart();
+            tempLineArr[1] = finalVertical.get(i).getEnd();
+            MatOfPoint tempLineMat = new MatOfPoint();
+            tempLineMat.fromArray(tempLineArr);
+
+            MatOfPoint line = new MatOfPoint(tempLineMat);
+
+            Imgproc.warpPerspective(tempLineMat, line, perspectiveMatrix,tempLineMat.size());
+
+            Point[] lineArr = line.toArray();
+
+            finalVertical.get(i).setStart(lineArr[0]);
+            finalVertical.get(i).setEnd(lineArr[1]);
+        }
 
 
     }
