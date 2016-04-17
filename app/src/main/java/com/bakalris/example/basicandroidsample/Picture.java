@@ -1,5 +1,6 @@
 package com.bakalris.example.basicandroidsample;
 
+import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
@@ -104,8 +105,8 @@ public class Picture {
 
     public void mergeLines(Mat lines) {
 
-        System.out.println("DEBUGGING-lines- cols:" + Integer.toString(lines.cols()));
-        System.out.println("DEBUGGING-lines- rows:" + Integer.toString(lines.rows()));
+        //System.out.println("DEBUGGING-lines- cols:" + Integer.toString(lines.cols()));
+        //System.out.println("DEBUGGING-lines- rows:" + Integer.toString(lines.rows()));
 
         ArrayList<Point[]> vectorOfLines = new ArrayList<>();
 
@@ -129,13 +130,13 @@ public class Picture {
 
         int[] labels = partitioner.partition(vectorOfLines);
 
-        System.out.println("DEBUGGING-- pocet ciar:" + Integer.toString(vectorOfLines.size()));
-        System.out.println("DEBUGGING-- velkost pola labels:" + Integer.toString(labels.length));
-        System.out.println("DEBUGGING-- premenna getNclasses:" + Integer.toString(partitioner.getNclasses()));
+        //System.out.println("DEBUGGING-- pocet ciar:" + Integer.toString(vectorOfLines.size()));
+        //System.out.println("DEBUGGING-- velkost pola labels:" + Integer.toString(labels.length));
+        //System.out.println("DEBUGGING-- premenna getNclasses:" + Integer.toString(partitioner.getNclasses()));
 
         ArrayList<Point[]> mergedLines = new ArrayList<>(partitioner.getNclasses());
 
-        System.out.println("DEBUGGING-- mergedLines size:" + Integer.toString(mergedLines.size()));
+        //System.out.println("DEBUGGING-- mergedLines size:" + Integer.toString(mergedLines.size()));
 
         for(int i = 0; i<partitioner.getNclasses(); i++) {
             Point[] p = new Point[2];
@@ -162,7 +163,8 @@ public class Picture {
             /***********AK NEBOLA MERGE LINE ESTE INICIALIZOVANA**********/
 
 
-            System.out.println("DEBUGGING-- mergedLines size2:" + Integer.toString(mergedLines.size()));
+            //
+            // System.out.println("DEBUGGING-- mergedLines size2:" + Integer.toString(mergedLines.size()));
 
             if(mergedLines.get(labels[i])[0].x == Double.MAX_VALUE && mergedLines.get(labels[i])[0].y == Double.MAX_VALUE || mergedLines.get(labels[i])[1].x == -1 && mergedLines.get(labels[i])[1].y == -1) {
 
@@ -268,6 +270,7 @@ public class Picture {
         finalHorizontal = new ArrayList<>();
         finalVertical = new ArrayList<>();
 
+
         for(int i = 0; i < mergedLines.size(); i++) {
             if(Math.abs(mergedLines.get(i)[1].x - mergedLines.get(i)[0].x) > Math.abs(mergedLines.get(i)[1].y - mergedLines.get(i)[0].y)) {
                 if(CustomMathOperations.lineLength(mergedLines.get(i)[0],mergedLines.get(i)[1]) >= thresholded.cols()*0.3) {
@@ -282,7 +285,7 @@ public class Picture {
 
         if(finalHorizontal.size() == 0 || finalVertical.size() == 0) {
 
-            System.out.println("DEBUGGING-- Ziadne zmergovane ciary!");
+            //System.out.println("DEBUGGING-- Ziadne zmergovane ciary!");
             return;
         }
 
@@ -295,6 +298,9 @@ public class Picture {
     public void findPointsOfIntersection() {
 
         List<Point> points = new ArrayList<Point>();
+
+        //System.out.println("finalHorizontal size: " + finalHorizontal.size());
+        //System.out.println("finalVertical size: " + finalVertical.size());
 
         for(int i = 0;i<finalHorizontal.size();i++) {
             for(int j = 0; j<finalVertical.size();j++) {
@@ -309,6 +315,8 @@ public class Picture {
 
                 Point r = CustomMathOperations.intersection(ab, cd, grayscale.cols(), grayscale.rows());
 
+                //System.out.println("Point r: " + r.toString());
+
                 if(r.x != -1 || r.y != -1) {
 
                     points.add(r);
@@ -316,18 +324,21 @@ public class Picture {
                     Intersection i1 = new Intersection();
                     i1.setId(j);
                     i1.setPoi(r);
-                    finalHorizontal.get(i).getIntersection().add(i1);
+                    finalHorizontal.get(i).addIntersection(i1);
 
                     Intersection i2 = new Intersection();
                     i2.setId(i);
                     i2.setPoi(r);
-                    finalVertical.get(j).getIntersection().add(i2);
+                    finalVertical.get(j).addIntersection(i2);
 
                 }
             }
         }
 
+        poi = new MatOfPoint();
         poi.fromList(points);
+
+        System.out.println("DEBUGGING-- Number of intersections: " + poi.size());
 
         return;
 
@@ -540,20 +551,27 @@ public class Picture {
 
     public void performPerspectiveTransformation() //perspektivna transformacia zatial iba pre grayscale image, thresholded image, points of intersections ciar a pre koncove body ciar
     {
+        Mat transformedImage = Mat.zeros(transformedHeight,transformedWidth,image.type());
         Mat transformedGray = Mat.zeros(transformedHeight,transformedWidth,grayscale.type());
-        Mat transformedThresh = Mat.zeros(transformedHeight,transformedWidth,grayscale.type());
+        Mat transformedThresh = Mat.zeros(transformedHeight,transformedWidth,thresholded.type());
 
+        Imgproc.warpPerspective(image, transformedImage, perspectiveMatrix, transformedImage.size());
         Imgproc.warpPerspective(grayscale, transformedGray, perspectiveMatrix, transformedGray.size());
         Imgproc.warpPerspective(thresholded,transformedThresh,perspectiveMatrix,transformedThresh.size());
 
+        image =transformedImage;
         grayscale =transformedGray;
         thresholded=transformedThresh;
 
-        MatOfPoint transformedPoi = new MatOfPoint(poi);
+        Mat obj_points = CustomMathOperations.getMat(poi);
+        Mat scene_points = new Mat(4,1,CvType.CV_32FC2);
 
-        Imgproc.warpPerspective(poi, transformedPoi, perspectiveMatrix,poi.size());
+        //System.out.println("obj_points rows: " + obj_points.rows());
+        //System.out.println("obj_points cols: " + obj_points.cols());
 
-        poi = transformedPoi;
+        Core.perspectiveTransform(obj_points, scene_points, perspectiveMatrix);
+
+        poi = CustomMathOperations.getMatOfPoint(scene_points);
 
         for(int i = 0; i < finalHorizontal.size(); i++)
         {
@@ -561,12 +579,18 @@ public class Picture {
             Point[] tempLineArr = new Point[2];
             tempLineArr[0] = finalHorizontal.get(i).getStart();
             tempLineArr[1] = finalHorizontal.get(i).getEnd();
+
             MatOfPoint tempLineMat = new MatOfPoint();
             tempLineMat.fromArray(tempLineArr);
 
-            MatOfPoint line = new MatOfPoint(tempLineMat);
 
-            Imgproc.warpPerspective(tempLineMat, line, perspectiveMatrix,tempLineMat.size());
+            obj_points = CustomMathOperations.getMat(tempLineMat);
+            scene_points = new Mat(4,1,CvType.CV_32FC2);
+
+            Core.perspectiveTransform(obj_points, scene_points, perspectiveMatrix);
+
+            MatOfPoint line = CustomMathOperations.getMatOfPoint(scene_points);
+
 
             Point[] lineArr = line.toArray();
 
@@ -584,9 +608,14 @@ public class Picture {
             MatOfPoint tempLineMat = new MatOfPoint();
             tempLineMat.fromArray(tempLineArr);
 
-            MatOfPoint line = new MatOfPoint(tempLineMat);
 
-            Imgproc.warpPerspective(tempLineMat, line, perspectiveMatrix,tempLineMat.size());
+            obj_points = CustomMathOperations.getMat(tempLineMat);
+            scene_points = new Mat(4,1,CvType.CV_32FC2);
+
+            Core.perspectiveTransform(obj_points, scene_points, perspectiveMatrix);
+
+            MatOfPoint line = CustomMathOperations.getMatOfPoint(scene_points);
+
 
             Point[] lineArr = line.toArray();
 
@@ -596,6 +625,7 @@ public class Picture {
 
 
     }
+
 
 
 }

@@ -26,4 +26,6 @@ public class Intersection {
     public void setPoi(Point poi) {
         this.poi = poi;
     }
+
+
 }

@@ -2,9 +2,13 @@ package com.bakalris.example.basicandroidsample;
 
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Mirko on 16.4.2016.
@@ -188,7 +192,30 @@ public class CustomMathOperations {
 
 
 
+    public static Mat getMat(MatOfPoint mop) {
 
+        Point[] points = mop.toArray();
+        Mat obj = new Mat(points.length,1, CvType.CV_32FC2);
+
+        for(int i = 0; i < points.length; i ++) {
+            obj.put(i, 0, new double[]{points[i].x, points[i].y});
+        }
+
+        return obj;
+    }
+
+    public static MatOfPoint getMatOfPoint(Mat mat) {
+
+        List<Point> lp = new ArrayList<>();
+        for(int i = 0; i < mat.rows(); i++) {
+            double[] pt = mat.get(i,0);
+            lp.add(new Point(pt[0],pt[1]));
+        }
+
+        MatOfPoint mop = new MatOfPoint();
+        mop.fromList(lp);
+        return mop;
+    }
 
 
 }

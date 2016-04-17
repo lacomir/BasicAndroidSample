@@ -79,13 +79,30 @@ public class Controller {
         if(lines.cols() < 1)
             return; //TO-DO: exception here
 
-        picture.mergeLines(lines);
 
-        picture.findPointsOfIntersection();
+        try {
+            picture.mergeLines(lines);
+        } catch (NullPointerException e) {
+            System.err.println("DEBUGING-- mergeLines was null!! Another frame...");
+        }
 
-        picture.findIntersectionQuad();
+        //try {
+            picture.findPointsOfIntersection();
+        //} catch (NullPointerException e) {
+        //    System.err.println("DEBUGING-- findPointsOfIntersection was null!! Another frame...");
+        //}
 
-        picture.createPerspectiveMatrix();
+        //try {
+            picture.findIntersectionQuad();
+       /* } catch (NullPointerException e) {
+            System.err.println("DEBUGING-- findIntersectionQuad was null!! Another frame...");
+        }*/
+
+        try {
+            picture.createPerspectiveMatrix();
+        } catch (NullPointerException e) {
+            System.err.println("DEBUGING-- createPerspectiveMatrix was null!! Another frame...");
+        }
 
 
 
@@ -109,10 +126,10 @@ public class Controller {
 
     }
 
-    public Mat drawMergedLinesAfterTransform() {
+    public Mat drawMergedLinesAfterTransform(int width, int height) {
 
-        Mat rgba = new Mat(picture.thresholded.size(),picture.thresholded.type());
-        picture.thresholded.copyTo(rgba);
+        Mat rgba = new Mat(picture.image.size(),picture.image.type());
+        picture.image.copyTo(rgba);
 
         for(int i = 0; i < picture.finalHorizontal.size(); i++) {
 
@@ -126,7 +143,13 @@ public class Controller {
 
         }
 
-        return rgba;
+
+        Mat resizeimage = new Mat(width,height,rgba.type());
+        Size sz = new Size(width,height);
+        Imgproc.resize( rgba, resizeimage, sz );
+
+
+        return resizeimage;
 
     }
 

@@ -14,12 +14,14 @@ public class MergedLine {
     public ArrayList<Intersection> intersection;
 
     public MergedLine() {
-
+        intersection = new ArrayList<>();
     }
 
     public MergedLine(Point start, Point end) {
         this.start = start;
         this.end = end;
+
+        intersection = new ArrayList<>();
     }
 
     public Point getStart() {
@@ -45,4 +47,9 @@ public class MergedLine {
     public void setIntersection(ArrayList<Intersection> intersection) {
         this.intersection = intersection;
     }
+
+    public void addIntersection(Intersection i) {
+        intersection.add(i);
+    }
+
 }

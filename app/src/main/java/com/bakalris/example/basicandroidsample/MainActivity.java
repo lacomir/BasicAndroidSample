@@ -379,7 +379,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
         System.out.println("CONTROLLER: preprocessing passed!");
 
-        return controller.drawMergedLinesAfterTransform();
+        return controller.drawMergedLinesAfterTransform(mRgba.width(),mRgba.height());
     }
 
     public static final int COUNT_OF_DEMO_MODES = 5;
