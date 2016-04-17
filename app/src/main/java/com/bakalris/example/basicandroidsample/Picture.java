@@ -627,5 +627,39 @@ public class Picture {
     }
 
 
+    public void removeIntersectionsOutOfSudokuRect() {
+
+        if(poi == null)
+            return;
+
+        ArrayList<Point> points;
+        points = new ArrayList<>(poi.toList());
+
+
+        for(int i = 0; i < points.size() ; i++) {
+            Point point = points.get(i);
+            if(point.x < destEdges.get(0).x - 2)
+            {
+                points.remove(i);
+            }
+            else if(point.y < destEdges.get(0).y - 2)
+            {
+                points.remove(i);
+            }
+            else if(point.x > destEdges.get(3).x + 2)
+            {
+                points.remove(i);
+            }
+            else if(point.y > destEdges.get(3).y + 2)
+            {
+                points.remove(i);
+            }
+        }
+
+        poi.release();
+        poi = new MatOfPoint();
+        poi.fromList(points);
+
+    }
 
 }

@@ -86,17 +86,17 @@ public class Controller {
             System.err.println("DEBUGING-- mergeLines was null!! Another frame...");
         }
 
-        //try {
+        try {
             picture.findPointsOfIntersection();
-        //} catch (NullPointerException e) {
-        //    System.err.println("DEBUGING-- findPointsOfIntersection was null!! Another frame...");
-        //}
+        } catch (NullPointerException e) {
+            System.err.println("DEBUGING-- findPointsOfIntersection was null!! Another frame...");
+        }
 
-        //try {
+        try {
             picture.findIntersectionQuad();
-       /* } catch (NullPointerException e) {
+        } catch (NullPointerException e) {
             System.err.println("DEBUGING-- findIntersectionQuad was null!! Another frame...");
-        }*/
+        }
 
         try {
             picture.createPerspectiveMatrix();
@@ -108,6 +108,88 @@ public class Controller {
 
     }
 
+    public void segmentImage()
+    {
+
+        if(picture.poi == null)
+            return;
+
+        picture.removeIntersectionsOutOfSudokuRect();
+
+        if(picture.poi != null)
+            System.out.println(picture.poi.toList().toString());
+
+        if(picture.poi.rows() != 100) { //throw exception
+            System.out.println("Segmentation of possible Sudoku failed. Can not find all sudoku squares.");
+            return;
+        }
+        else {
+            //isSudoku = true;
+            //segmentSudoku();
+        }
+
+
+
+        return;
+
+
+
+    }
+
+    /*public void segmentSudoku() {
+        vector<vector<Point2f>> field;
+
+        for(int i = 0; i < 10; i++)
+        {
+            vector<Point2f> vec(picture.poi.begin() + (i*10), picture.poi.begin() + (i+1)*10);
+            field.push_back(vec);
+        }
+
+        vector<vector<Letter>> sudoku;
+
+        for(int i = 0; i < 9; i++)
+        {
+            sudoku.push_back(vector<Letter>());
+            for(int j = 0; j < 9; j++)
+            {
+                int shiftX = picture.grayscale.cols / 50;
+                int shiftY = picture.grayscale.rows / 100;
+
+                sudoku[i].push_back(Letter());
+                sudoku[i][j].segment.push_back(Point2f(field[i][j].x + shiftX, field[i][j].y + shiftY)); // posunut hodnoty dovnutra stvorceka
+                sudoku[i][j].segment.push_back(Point2f(field[i][j+1].x - shiftX, field[i][j+1].y + shiftY));
+                sudoku[i][j].segment.push_back(Point2f(field[i+1][j].x + shiftX, field[i+1][j].y - shiftY));
+                sudoku[i][j].segment.push_back(Point2f(field[i+1][j+1].x - shiftX, field[i+1][j+1].y - shiftY));
+
+                sudoku[i][j].rect = boundingRect( Mat(sudoku[i][j].segment) );
+            }
+        }
+
+        #ifdef DEBUG
+
+        RNG rng(12345);
+
+        for(int i = 0; i < 9; i++)
+        {
+            for(int j = 0; j < 9; j++)
+            {
+                Scalar color = Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
+                rectangle( picture.grayscale, sudoku[i][j].rect.tl(), sudoku[i][j].rect.br(), color, 1, 8, 0 );
+
+            }
+        }
+
+        tosave.push_back(new ToSave(picture.grayscale, "Bounding Rects"));
+
+
+        #endif
+
+            sudoku = findNumbers(sudoku, picture.thresholded);
+
+        hlavolam = sudoku;
+
+    }
+*/
     public Mat drawMergedLines(Mat mRgba) {
 
         for(int i = 0; i < picture.finalHorizontal.size(); i++) {

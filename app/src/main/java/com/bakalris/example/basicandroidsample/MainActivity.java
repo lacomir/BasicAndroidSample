@@ -376,6 +376,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
         Controller controller = new Controller(mRgba,mGray);
         controller.preprocessImage();
+        controller.segmentImage();
 
         System.out.println("CONTROLLER: preprocessing passed!");
 
