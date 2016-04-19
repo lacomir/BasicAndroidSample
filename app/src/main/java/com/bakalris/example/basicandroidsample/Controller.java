@@ -246,6 +246,16 @@ public class Controller {
     }
 
 
+    public void resolveProblem() {
+
+        if(hlavolam == null)
+            return;
+
+        hlavolam.solveProblem();
+
+    }
+
+
 
     public Mat drawMergedLines(Mat mRgba) {
 
@@ -324,6 +334,7 @@ public class Controller {
         return resizeimage;
 
     }
+
 
 
 }

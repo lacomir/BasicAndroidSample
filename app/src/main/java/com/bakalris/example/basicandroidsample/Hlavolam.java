@@ -10,4 +10,6 @@ public abstract class Hlavolam {
 
     public abstract Letter[][] getLetters();
 
+    public abstract void solveProblem();
+
 }

@@ -398,7 +398,31 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         }
 
 
+        controller.resolveProblem();
 
+
+        List<int[]> sudoku = new ArrayList<>();
+        int[] line = new int[]{6,7,-1,-1,9,-1,-1,5,4};
+        sudoku.add(line);
+        line = new int[]{9, -1, -1, -1, -1, -1, -1, -1, 3};
+        sudoku.add(line);
+        line = new int[]{-1, -1, 3, -1, 6, -1, 7, -1, -1};
+        sudoku.add(line);
+        line = new int[]{-1, -1, -1, 7, 5, 9, -1, -1, -1};
+        sudoku.add(line);
+        line = new int[]{7, -1, -1, -1, -1, 3, 4, -1, 6};
+        sudoku.add(line);
+        line = new int[]{-1, -1, -1, 1, 4, 6, -1, -1, -1};
+        sudoku.add(line);
+        line = new int[]{-1, -1, 7, -1, 8, -1, 6, -1, -1};
+        sudoku.add(line);
+        line = new int[]{5, -1, -1, -1, -1, -1, -1, -1, 2};
+        sudoku.add(line);
+        line = new int[]{2, 4, -1, -1, 1, -1, -1, 3, 8};
+        sudoku.add(line);
+
+        DancingSudokuSolver problem = new DancingSudokuSolver(sudoku);
+        problem.solve();
 
 
         System.out.println("CONTROLLER: preprocessing passed!");

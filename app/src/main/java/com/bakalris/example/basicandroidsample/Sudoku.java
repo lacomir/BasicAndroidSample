@@ -159,8 +159,40 @@ public class Sudoku extends Hlavolam {
         return;
     }
 
+
+    public ArrayList<int[][]> solveSudoku() {
+
+        List<int[]> list = new ArrayList<>();
+
+        for(int i = 0; i < SUDOKU_LENGTH; i++) {
+
+            int[] row = new int[SUDOKU_LENGTH];
+
+            for(int j = 0; j < SUDOKU_LENGTH; j++) {
+                if(numbers[i][j].hasChar)
+                    row[j] = Integer.parseInt(numbers[i][j].getCharacter());
+                else
+                    row[j] = -1;
+            }
+
+            list.add(row);
+
+        }
+
+        DancingSudokuSolver problem = new DancingSudokuSolver(list);
+        problem.solve();
+
+        return problem.getSols();
+
+    }
+
     @Override
     public Letter[][] getLetters() {
         return getNumbers();
+    }
+
+    @Override
+    public void solveProblem() {
+        solveSudoku();
     }
 }
