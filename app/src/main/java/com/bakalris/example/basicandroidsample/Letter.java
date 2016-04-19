@@ -93,5 +93,20 @@ public class Letter {
     }
 
 
+    public void computeCharacteristics() {
+
+        if(!hasChar)
+            return;
+
+        characteristics = new ArrayList<>();
+
+        characteristics.add(CustomMathOperations.boundingRectAspectRatio(mask));
+        characteristics.add(CustomMathOperations.foregroundToBackgroundRatio(mask, points.size()));
+        characteristics.addAll(CustomMathOperations.computeMoments(mask,points));
+
+        return;
+
+    }
+
 
 }

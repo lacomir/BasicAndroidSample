@@ -369,7 +369,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 //        }
 //        return littleBitOfPreprocessing(inputFrame, mViewMode);
 
-        System.out.println("CONTROLLER: preprocessing started!");
+        System.out.println("CONTROLLER: Processing started!");
 
         inputFrame.rgba().copyTo(mRgba);
         inputFrame.gray().copyTo(mGray);
@@ -377,10 +377,11 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         Controller controller = new Controller(mRgba,mGray);
         controller.preprocessImage();
         controller.segmentImage();
+        controller.computeCharacteristicVector();
 
-        System.out.println("CONTROLLER: preprocessing passed!");
+        System.out.println("CONTROLLER: Processing finished!");
 
-        return controller.drawMergedLinesAfterTransform(mRgba.width(),mRgba.height());
+        return controller.drawSudokuSquares(mRgba.width(),mRgba.height());
     }
 
     public static final int COUNT_OF_DEMO_MODES = 5;

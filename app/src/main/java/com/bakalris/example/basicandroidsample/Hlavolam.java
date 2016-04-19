@@ -5,4 +5,9 @@ package com.bakalris.example.basicandroidsample;
  */
 public abstract class Hlavolam {
 
+    public int rows;
+    public int cols;
+
+    public abstract Letter[][] getLetters();
+
 }

@@ -218,4 +218,63 @@ public class CustomMathOperations {
     }
 
 
+    public static double boundingRectAspectRatio(Mat mask) {
+
+        return ((double) mask.cols() / (double) mask.rows());
+
+    }
+
+    public static double foregroundToBackgroundRatio(Mat mask, int pointsSize) {
+
+        double total = mask.cols() * mask.rows();
+
+        return (pointsSize / total);
+
+    }
+
+    public static ArrayList<Double> computeMoments(Mat mask, ArrayList<Point> points) {
+
+        RunningStats statX = new RunningStats();
+        RunningStats statY = new RunningStats();
+
+        ArrayList<Double> characteristics = new ArrayList<>();
+
+        for(int i = 0; i < points.size(); i++ ) {
+            statX.Push(points.get(i).x);
+            statY.Push(points.get(i).y);
+        }
+
+        Point center;
+
+        if(mask.cols() % 2 == 0) {
+            if(mask.rows() % 2 == 0) {
+                center = new Point(mask.cols()/2,mask.rows()/2);
+            } else {
+                center = new Point(mask.cols()/2,(mask.rows()/2 + 0.5));
+            }
+        } else if(mask.rows() % 2 == 0){
+            center = new Point((mask.cols() / 2 + 0.5), mask.rows() / 2);
+        } else {
+            center = new Point((mask.cols() / 2 + 0.5), (mask.rows() / 2 + 0.5));
+        }
+
+        double relativeMean = statX.Mean() / statY.Mean() / mask.cols() * mask.rows();
+        double meanCenterRelationX = (statX.Mean() - center.x) / mask.cols();
+        double meanCenterRelationY = (statY.Mean() - center.y) / mask.rows();
+
+        characteristics.add(relativeMean);
+        characteristics.add(meanCenterRelationX);
+        characteristics.add(meanCenterRelationY);
+        characteristics.add(statX.StandardDeviation() / mask.cols());
+        characteristics.add(statY.StandardDeviation() / mask.rows());
+        characteristics.add(statX.Skewness());
+        characteristics.add(statY.Skewness());
+        characteristics.add(statX.Kurtosis());
+        characteristics.add(statY.Kurtosis());
+
+        return characteristics;
+
+    }
+
+
 }

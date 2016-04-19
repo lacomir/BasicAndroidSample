@@ -133,7 +133,7 @@ public class Sudoku extends Hlavolam {
                             g*= -1;
 
                             if(inOutter > -1 && outInner == g) {
-                                numbers[i][j].points.add(new Point(k,l));
+                                numbers[i][j].points.add(new Point(k, l));
                             }
                         }
                     }
@@ -148,4 +148,8 @@ public class Sudoku extends Hlavolam {
         return;
     }
 
+    @Override
+    public Letter[][] getLetters() {
+        return getNumbers();
+    }
 }

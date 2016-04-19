@@ -198,8 +198,31 @@ public class Controller {
 
         hlavolam = sudoku;
 
+        hlavolam.rows = 9;
+        hlavolam.cols = 9;
+
+        return;
+
 
     }
+
+
+    public void computeCharacteristicVector() {
+
+        for(int i = 0; i < hlavolam.rows; i++) {
+            for(int j = 0; j < hlavolam.cols; j++) {
+
+                hlavolam.getLetters()[i][j].computeCharacteristics();
+
+            }
+        }
+
+
+
+        return;
+    }
+
+
 
     public Mat drawMergedLines(Mat mRgba) {
 
@@ -236,6 +259,33 @@ public class Controller {
 
         }
 
+
+        Mat resizeimage = new Mat(width,height,rgba.type());
+        Size sz = new Size(width,height);
+        Imgproc.resize( rgba, resizeimage, sz );
+
+
+        return resizeimage;
+
+    }
+
+    public Mat drawSudokuSquares(int width, int height) {
+
+        Mat rgba = new Mat(picture.image.size(),picture.image.type());
+        picture.image.copyTo(rgba);
+
+        for(int i = 0; i < 9; i++)
+        {
+            for(int j = 0; j < 9; j++) {
+                Scalar color;
+                if(hlavolam.getLetters()[i][j].getHasChar())
+                   color = new Scalar(255,0,0);
+                else
+                    color = new Scalar(0,255,0);
+
+                Imgproc.rectangle( rgba, hlavolam.getLetters()[i][j].rect.tl(), hlavolam.getLetters()[i][j].rect.br(), color, 2, 8, 0 );
+            }
+        }
 
         Mat resizeimage = new Mat(width,height,rgba.type());
         Size sz = new Size(width,height);
