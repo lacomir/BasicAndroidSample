@@ -34,7 +34,13 @@ import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.ml.KNearest;
+import org.opencv.ml.Ml;
+import org.opencv.ml.TrainData;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -379,10 +385,28 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         controller.segmentImage();
         controller.computeCharacteristicVector();
 
+        try {
+
+            KNearestDigitRecognition.getInstance().setKnn(initDigitKnn());
+            controller.recognizeCharacters(KNearestDigitRecognition.getInstance().getKnn());
+
+        } catch (IOException e) {
+            System.err.println("Couldn't open train data for KNN digit recognition.");
+            e.printStackTrace();
+        } finally {
+            System.out.println("KNN created successfuly!");
+        }
+
+
+
+
+
         System.out.println("CONTROLLER: preprocessing passed!");
 
         return controller.drawSudokuSquares(mRgba.width(),mRgba.height());
     }
+
+
 
     public static final int COUNT_OF_DEMO_MODES = 5;
     public static final int WHOLE_DEMO_TIME = 50;
@@ -506,4 +530,101 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         int step = (int) (roundTime / modesCount);
         return current / step;
     }
+
+    private KNearest initDigitKnn() throws IOException {
+
+        BufferedReader reader =new BufferedReader( new InputStreamReader(getAssets().open("digit-train-data.data"), "UTF-8"));
+
+        String line;
+
+        ArrayList<String> character = new ArrayList<>();
+        ArrayList<ArrayList<String>> portion = new ArrayList<>();
+
+        int i = 0;
+        while ((line = reader.readLine()) != null) {
+
+            portion.add(new ArrayList<String>());
+
+            String[] sep = line.split(",");
+            character.add(sep[0]);
+
+            for(int j = 1; j < sep.length; j++) {
+                portion.get(i).add(sep[j]);
+            }
+            i++;
+
+        }
+
+        if (reader != null) {
+            reader.close();
+        }
+
+        Mat trainData = new Mat(portion.size(), portion.get(0).size(), CvType.CV_32FC1);
+        Mat trainClasses = new Mat(portion.size(),1, CvType.CV_32FC1);
+
+        for( i = 0; i < portion.size(); i++ ) {
+            for(int j = 0; j < portion.get(i).size(); j++) {
+                trainData.put(i,j, (float) Double.parseDouble(portion.get(i).get(j)));
+            }
+            trainClasses.put(i, 0, (float) Double.parseDouble(character.get(i)));
+        }
+
+
+        KNearest knn = KNearest.create();
+        knn.train(trainData, Ml.ROW_SAMPLE, trainClasses);
+
+        return knn;
+
+    }
+
+    private void testKnn(KNearest knn) throws IOException {
+
+        BufferedReader reader =new BufferedReader( new InputStreamReader(getAssets().open("digit-train-data.data"), "UTF-8"));
+
+        String line;
+
+        String character;
+        ArrayList<String> portion = new ArrayList<>();
+
+
+        if ((line = reader.readLine()) != null) {
+
+            String[] sep = line.split(",");
+            character= sep[0];
+
+            for(int j = 1; j < sep.length; j++) {
+                portion.add(sep[j]);
+            }
+
+
+        } else {
+            return;
+        }
+
+        if (reader != null) {
+            reader.close();
+        }
+
+        Mat trainData = new Mat(1, portion.size(), CvType.CV_32FC1);
+        Mat trainClasses = new Mat(1, 1, CvType.CV_32FC1);
+
+        for(int i = 0; i < portion.size(); i++ ) {
+            trainData.put(0, i, (float) Double.parseDouble(portion.get(i)));
+        }
+
+        float predict = knn.findNearest(trainData,1,trainClasses);
+
+        double[] d = trainClasses.get(0,0);
+
+        System.out.println("Expected: '" + character + "' Got: '" + Integer.toString((int) predict) + "'");
+
+        if(character.equals(Integer.toString((int) predict))) {
+            System.out.println("KNN IS READY, YOU ROCK!");
+        }
+
+        return;
+
+    }
+
+
 }

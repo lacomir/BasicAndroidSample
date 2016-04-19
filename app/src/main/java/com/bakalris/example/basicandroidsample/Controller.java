@@ -1,12 +1,14 @@
 package com.bakalris.example.basicandroidsample;
 
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.core.Size;
+import org.opencv.ml.KNearest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -218,8 +220,29 @@ public class Controller {
             }
         }
 
+        return;
+    }
+
+
+    public void recognizeCharacters(KNearest knn) {
+
+        if(hlavolam == null)
+            return;
+
+        for(int i = 0; i < hlavolam.rows; i++) {
+            for(int j = 0; j < hlavolam.cols; j++) {
+
+                hlavolam.getLetters()[i][j].recognizeChar(knn);
+
+                if(hlavolam.getLetters()[i][j].hasChar) {
+                    System.out.println("DEBUGGING-knn- [" + i + "][" + j + "] : " + hlavolam.getLetters()[i][j].getCharacter());
+                }
+
+            }
+        }
 
         return;
+
     }
 
 

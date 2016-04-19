@@ -1,9 +1,11 @@
 package com.bakalris.example.basicandroidsample;
 
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
+import org.opencv.ml.KNearest;
 
 import java.util.ArrayList;
 
@@ -112,6 +114,28 @@ public class Letter {
         System.out.println("DEBUGGING-characteristics- " + characteristics.toString());
 
         return;
+
+    }
+
+    public String recognizeChar(KNearest knn) {
+
+        if(hasChar) {
+
+            Mat trainData = new Mat(1, characteristics.size(), CvType.CV_32FC1);
+            Mat trainClasses = new Mat(1, 1, CvType.CV_32FC1);
+
+            for (int i = 0; i < characteristics.size(); i++) {
+                trainData.put(0, i, (float) characteristics.get(i).doubleValue());
+            }
+
+            float predict = knn.findNearest(trainData, 1, trainClasses);
+
+            character = Integer.toString((int) predict);
+
+            return character;
+        } else {
+            return null;
+        }
 
     }
 
