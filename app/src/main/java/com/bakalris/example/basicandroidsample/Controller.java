@@ -118,8 +118,8 @@ public class Controller {
 
         picture.removeIntersectionsOutOfSudokuRect();
 
-        if(picture.poi != null)
-            System.out.println(picture.poi.toList().toString());
+        //if(picture.poi != null)
+            //System.out.println(picture.poi.toList().toString());
 
         if(picture.poi.rows() != 100) { //throw exception
             System.out.println("Segmentation of possible Sudoku failed. Can not find all sudoku squares.");
@@ -127,7 +127,7 @@ public class Controller {
         }
         else {
             //isSudoku = true;
-            //segmentSudoku();
+            segmentSudoku();
         }
 
 
@@ -141,9 +141,9 @@ public class Controller {
     public void segmentSudoku() {
 
         List<Point> pts = new ArrayList<>();
+        pts = picture.poi.toList();
 
         /*
-        pts = picture.poi.toList();
         ArrayList<ArrayList<Point>> field = new ArrayList<>();
 
         for(int i = 0; i < 10; i++) {
@@ -163,30 +163,28 @@ public class Controller {
 
         Sudoku sudoku = new Sudoku();
 
+        double sudokuRectWidth = picture.getDestEdges().get(1).x - picture.getDestEdges().get(0).x;
+        double sudokuRectHeight = picture.getDestEdges().get(2).y - picture.getDestEdges().get(1).y;
+
+        double shiftX = sudokuRectWidth / 80;
+        double shiftY = sudokuRectHeight / 80;
+
         for(int i = 0; i < 9; i++)
         {
-            //sudoku.push_back(vector<Letter>());
             for(int j = 0; j < 9; j++)
             {
-                int shiftX = picture.grayscale.cols() / 50;
-                int shiftY = picture.grayscale.rows() / 100;
-
-                //sudoku[i].push_back(Letter());
 
                 Point[] futureRect = new Point[4];
-                futureRect[0] = new Point(pts.get(i*10+j).x + shiftX, pts.get(i*10+j).y + shiftY);
-                futureRect[1] = new Point(pts.get(i*10+(j+1)).x - shiftX, pts.get(i*10+(j+1)).y + shiftY);
-                futureRect[2] = new Point(pts.get((i+1)*10+j).x + shiftX, pts.get((i+1)*10+j).y - shiftY);
-                futureRect[2] = new Point(pts.get((i+1)*10+(j+1)).x - shiftX, pts.get((i+1)*10+(j+1)).y - shiftY);
+                futureRect[0] = new Point((pts.get(i*10+j).x + shiftX), (pts.get(i*10+j).y + shiftY));
+                futureRect[1] = new Point((pts.get(i*10+(j+1)).x - shiftX), (pts.get(i*10+(j+1)).y + shiftY));
+                futureRect[2] = new Point((pts.get((i+1)*10+j).x + shiftX), (pts.get((i+1)*10+j).y - shiftY));
+                futureRect[3] = new Point((pts.get((i+1)*10+(j+1)).x - shiftX), (pts.get((i+1)*10+(j+1)).y - shiftY));
 
-                sudoku.getNumbers()[i][j].setSegment(new MatOfPoint(futureRect));
 
-                /*
-                sudoku[i][j].segment.push_back(Point2f(field[i][j].x + shiftX, field[i][j].y + shiftY)); // posunut hodnoty dovnutra stvorceka
-                sudoku[i][j].segment.push_back(Point2f(field[i][j+1].x - shiftX, field[i][j+1].y + shiftY));
-                sudoku[i][j].segment.push_back(Point2f(field[i+1][j].x + shiftX, field[i+1][j].y - shiftY));
-                sudoku[i][j].segment.push_back(Point2f(field[i+1][j+1].x - shiftX, field[i+1][j+1].y - shiftY));
-                */
+                MatOfPoint futureRectMat = new MatOfPoint();
+                futureRectMat.fromArray(futureRect);
+
+                sudoku.getNumbers()[i][j].setSegment(futureRectMat);
 
                 sudoku.getNumbers()[i][j].setRect(Imgproc.boundingRect(sudoku.getNumbers()[i][j].segment));
             }
@@ -209,6 +207,9 @@ public class Controller {
 
     public void computeCharacteristicVector() {
 
+        if(hlavolam == null)
+            return;
+
         for(int i = 0; i < hlavolam.rows; i++) {
             for(int j = 0; j < hlavolam.cols; j++) {
 
@@ -216,7 +217,6 @@ public class Controller {
 
             }
         }
-
 
 
         return;
@@ -271,8 +271,14 @@ public class Controller {
 
     public Mat drawSudokuSquares(int width, int height) {
 
+
+        if(hlavolam == null) {
+            return drawMergedLinesAfterTransform( width, height);
+        }
+
         Mat rgba = new Mat(picture.image.size(),picture.image.type());
         picture.image.copyTo(rgba);
+
 
         for(int i = 0; i < 9; i++)
         {
@@ -287,7 +293,7 @@ public class Controller {
             }
         }
 
-        Mat resizeimage = new Mat(width,height,rgba.type());
+        Mat resizeimage = new Mat(height,width,rgba.type());
         Size sz = new Size(width,height);
         Imgproc.resize( rgba, resizeimage, sz );
 

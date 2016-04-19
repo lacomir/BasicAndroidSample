@@ -22,6 +22,12 @@ public class Sudoku extends Hlavolam {
     public Sudoku() {
         numbers = new Letter[SUDOKU_LENGTH][SUDOKU_LENGTH];
 
+        for(int i = 0; i < SUDOKU_LENGTH; i++) {
+            for(int j = 0; j < SUDOKU_LENGTH; j++) {
+                numbers[i][j] = new Letter();
+            }
+        }
+
     }
 
     public Letter[][] getNumbers() {
@@ -98,6 +104,11 @@ public class Sudoku extends Hlavolam {
                     Imgproc.findContours(numbers[i][j].mask, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
                     hierarchy.release();
 
+                    if(contours.size() < 1) {
+                        System.out.println("No cont inside! n." + (i*10+j));
+                        continue;
+                    }
+
                     biggestContour = 0;
                     biggestContourArea = Imgproc.contourArea(contours.get(biggestContour));
 
@@ -139,7 +150,7 @@ public class Sudoku extends Hlavolam {
                     }
 
                     numbers[i][j].hasChar = true;
-
+                    System.out.println("HASCHAR: [" + (i+1) + "][" + (j+1) + "]");
                 }
 
             }

@@ -369,7 +369,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 //        }
 //        return littleBitOfPreprocessing(inputFrame, mViewMode);
 
-        System.out.println("CONTROLLER: Processing started!");
+        System.out.println("CONTROLLER: preprocessing started!");
 
         inputFrame.rgba().copyTo(mRgba);
         inputFrame.gray().copyTo(mGray);
@@ -379,7 +379,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         controller.segmentImage();
         controller.computeCharacteristicVector();
 
-        System.out.println("CONTROLLER: Processing finished!");
+        System.out.println("CONTROLLER: preprocessing passed!");
 
         return controller.drawSudokuSquares(mRgba.width(),mRgba.height());
     }

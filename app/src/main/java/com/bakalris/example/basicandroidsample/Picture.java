@@ -338,7 +338,7 @@ public class Picture {
         poi = new MatOfPoint();
         poi.fromList(points);
 
-        System.out.println("DEBUGGING-- Number of intersections: " + poi.size());
+        //System.out.println("DEBUGGING-- Number of intersections: " + poi.size());
 
         return;
 

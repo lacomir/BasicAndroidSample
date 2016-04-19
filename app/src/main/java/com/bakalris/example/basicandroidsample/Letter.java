@@ -25,6 +25,11 @@ public class Letter {
 
         points = new ArrayList<>();
         characteristics = new ArrayList<>();
+        segment = new MatOfPoint();
+        rect = new Rect();
+        boundRect = new Rect();
+        mask = new Mat();
+        hasChar = false;
 
     }
 
@@ -103,6 +108,8 @@ public class Letter {
         characteristics.add(CustomMathOperations.boundingRectAspectRatio(mask));
         characteristics.add(CustomMathOperations.foregroundToBackgroundRatio(mask, points.size()));
         characteristics.addAll(CustomMathOperations.computeMoments(mask,points));
+
+        System.out.println("DEBUGGING-characteristics- " + characteristics.toString());
 
         return;
 
