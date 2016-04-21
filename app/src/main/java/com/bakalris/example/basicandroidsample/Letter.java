@@ -128,7 +128,7 @@ public class Letter {
                 trainData.put(0, i, (float) characteristics.get(i).doubleValue());
             }
 
-            float predict = knn.findNearest(trainData, 1, trainClasses);
+            float predict = knn.findNearest(trainData, 3, trainClasses);
 
             character = Integer.toString((int) predict);
 

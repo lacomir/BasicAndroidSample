@@ -19,6 +19,8 @@
             android:background="?attr/colorPrimary"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
+
+
     </android.support.design.widget.AppBarLayout>
 
     <include layout="@layout/content_main" />
@@ -39,6 +41,47 @@
         android:layout_margin="@dimen/fab_margin"
         android:src="@android:drawable/ic_dialog_dialer" />
 
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:id="@+id/login_progress"
+        android:gravity="center"
+        android:visibility="gone">
+
+
+        <ProgressBar
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Processing image..."
+
+            />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/imageViewLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/imageView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+             />
+
+
+
+    </LinearLayout>
 
 
 </android.support.design.widget.CoordinatorLayout>
