@@ -59,11 +59,11 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
      */
     private View mCameraLayout;
     private View mProgressLayout;
-    private View imageViewLayout;
     private CameraBridgeViewBase mOpenCvCameraView;
 
     private Boolean touched = false;
     private Boolean processing = false;
+    private Boolean afterProcessing = false;
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -87,6 +87,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     private Mat mRgba;
     private Mat mIntermediateMat;
     private Mat mGray;
+    private Mat mProcessedMat;
     private int mViewMode = -1;
     private MenuItem mMenuItem_DEMO;
     private MenuItem mMenuItem_NORMAL;
@@ -101,7 +102,6 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     private static final int COLOR_TYPE = CvType.CV_8UC4;
     private static final int GRAY_TYPE = CvType.CV_8UC1;
 
-    private ProcessImageTask mProcessTask = null;
 
 
 
@@ -154,17 +154,15 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.opencv_camera_view);
         mCameraLayout = findViewById(R.id.camera_layout);
         mProgressLayout = findViewById(R.id.camera_progress);
-        imageViewLayout = findViewById(R.id.imageViewLayout);
 
+        mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
 
-        showProgress(false);
+        mOpenCvCameraView.setCvCameraViewListener(this);
 
 
         /* init layouts for opencv
                 END
          */
-
-        /*
 
         final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         final TextView textView = (TextView) findViewById(R.id.hello);
@@ -223,50 +221,32 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
                 startActivity(intent);
             }
         });
-        */
 
         // get string from resources
-
-
-        //String appName = getResources().getString(R.string.app_name);
-
+        String appName = getResources().getString(R.string.app_name);
 
         // get int from resources
-
-
-        //mInt = getResources().getInteger(R.integer.vyska);
-
+        mInt = getResources().getInteger(R.integer.vyska);
 
         // set text to text view
-
-        //textView.setText(textView.getText() + " " + mInt);
+        textView.setText(textView.getText() + " " + mInt);
 
         // get variables from persistence layer : Shared Preferences approach
         // Access shared preferences space
-
-
-        //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(App.getContext());
-
-
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(App.getContext());
         // write into it
         // indexing is based upon string key words
         // don`t forget to commit changes, after changing local SharedPreferences instance
-
-
-        //String somethingSmallKey = "somethingSmall";
-        //prefs.edit().putInt(somethingSmallKey, mInt).commit();
-
-
+        String somethingSmallKey = "somethingSmall";
+        prefs.edit().putInt(somethingSmallKey, mInt).commit();
         // read from it
         // indexing is the same
         // after writing in some type of object the same type of object has to be read
         // we can choose from various types : Boolean, Int, Long, Float, Double, String, StringSet
-
-
-        //int readPrefsVal = prefs.getInt(somethingSmallKey, 0);
-        //textView.setText(textView.getText() + "\n Prefs Val : " + readPrefsVal);
+        int readPrefsVal = prefs.getInt(somethingSmallKey, 0);
+        textView.setText(textView.getText() + "\n Prefs Val : " + readPrefsVal);
         // check if the value is already in
-        //textView.append("" + prefs.contains(somethingSmallKey));
+        textView.append("" + prefs.contains(somethingSmallKey));
 
     }
 
@@ -342,39 +322,41 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         mOpenCvCameraView.setCvCameraViewListener(this);
         */
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
 
-            mOpenCvCameraView.setVisibility(show ? View.GONE : View.VISIBLE);
-            mOpenCvCameraView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mOpenCvCameraView.setVisibility(show ? View.GONE : View.VISIBLE);
-                }
-            });
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+                    int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
-            mProgressLayout.setVisibility(show ? View.VISIBLE : View.GONE);
-            mProgressLayout.animate().setDuration(shortAnimTime).alpha(
-                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
+                    mCameraLayout.setVisibility(show ? View.GONE : View.VISIBLE);
+                    mCameraLayout.animate().setDuration(shortAnimTime).alpha(
+                            show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            mCameraLayout.setVisibility(show ? View.GONE : View.VISIBLE);
+                        }
+                    });
+
                     mProgressLayout.setVisibility(show ? View.VISIBLE : View.GONE);
+                    mProgressLayout.animate().setDuration(shortAnimTime).alpha(
+                            show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            mProgressLayout.setVisibility(show ? View.VISIBLE : View.GONE);
+                        }
+                    });
+
+                    // TODO : enable the camera preview again
+                } else {
+                    // The ViewPropertyAnimator APIs are not available, so simply show
+                    // and hide the relevant UI components.
+                    mProgressLayout.setVisibility(show ? View.VISIBLE : View.GONE);
+                    mCameraLayout.setVisibility(show ? View.GONE : View.VISIBLE);
+                    // TODO : disable the camera preview to lighten the cpu usage
                 }
-            });
-
-            mOpenCvCameraView.setCvCameraViewListener(this);
-
-            // TODO : enable the camera preview again
-        } else {
-            // The ViewPropertyAnimator APIs are not available, so simply show
-            // and hide the relevant UI components.
-            mProgressLayout.setVisibility(show ? View.VISIBLE : View.GONE);
-            mOpenCvCameraView.setVisibility(show ? View.GONE : View.VISIBLE);
-            // TODO : disable the camera preview to lighten the cpu usage
-
-            mOpenCvCameraView.setCvCameraViewListener(this);
-        }
+            }
+        }); // runOnUIthread
     }
 
     @Override
@@ -414,10 +396,51 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
     @Override
     public Mat onCameraFrame(final CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
-        // first of all think of what you need to do before you do it
+
 //        if (mViewMode == DEMO) {
 //            return littleBitOfPreprocessing(inputFrame, roundRobinMode(COUNT_OF_DEMO_MODES, WHOLE_DEMO_TIME));
 //        }
+
+        return littleBitOfPreprocessing(inputFrame, -1);
+
+    }
+
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+
+        if(afterProcessing) {
+
+            afterProcessing = false;
+
+        }else if(!processing && !touched) {
+
+            touched = true;
+
+        }
+
+
+        return false;
+    }
+
+
+
+
+    public static final int COUNT_OF_DEMO_MODES = 5;
+    public static final int WHOLE_DEMO_TIME = 50;
+    public static final int DEMO = -1;
+    public static final int NORMAL = 0;
+    public static final int GAUS_7_GRAY = 1;
+    public static final int CANNY = 2;
+    public static final int CONTOURS = 3;
+    public static final int HOUGH_LINES = 4;
+    public static final int FIND_LETTERS = 5;
+
+
+    private Mat littleBitOfPreprocessing(CameraBridgeViewBase.CvCameraViewFrame inputFrame, int mode) {
+        // in here just scramble the egs and paint the beauty
+
+
 
         inputFrame.rgba().copyTo(mRgba);
         inputFrame.gray().copyTo(mGray);
@@ -427,6 +450,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
 
             processing = true;
+            showProgress(true);
 
             System.out.println("CONTROLLER: preprocessing started!");
 
@@ -434,112 +458,19 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             inputFrame.rgba().copyTo(mRgba);
             inputFrame.gray().copyTo(mGray);
 
-            final int origWidth = mRgba.cols();
-            final int origHeight = mRgba.rows();
-            final int origType = mRgba.type();
-
-            Controller controller = new Controller(mRgba, mGray);
-
-            new Thread(new Runnable() {
-                public void run() {
-
-                    Controller controller = new Controller(mRgba, mGray);
-
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            showProgress(true);
-                            System.out.println("DEBIGGING-- " + "showProgress");
-                        }
-                    }); // runOnUIthread
-
-
-                    System.out.println("DEBIGGING-- " + "preprocessImage");
-                    controller.preprocessImage();
-                    System.out.println("DEBIGGING-- " + "segmentImage");
-                    controller.segmentImage();
-                    System.out.println("DEBIGGING-- " + "computeCharacteristicVector");
-                    controller.computeCharacteristicVector();
-
-
-                    try {
-
-                        KNearestDigitRecognition.getInstance().setKnn(initDigitKnn());
-                        System.out.println("DEBIGGING-- " + "recognizeCharacters");
-                        controller.recognizeCharacters(KNearestDigitRecognition.getInstance().getKnn());
-
-                    } catch (IOException e) {
-                        System.err.println("Couldn't open train data for KNN digit recognition.");
-                        e.printStackTrace();
-                    } finally {
-                        System.out.println("KNN created successfuly!");
-                    }
-
-                    System.out.println("DEBIGGING-- " + "resolveProblem");
-                    controller.resolveProblem();
-
-                    mDrawableRgba = new Mat(origHeight,origWidth,origType);
-                    mDrawableRgba = controller.drawSudokuSquares(origWidth, origHeight);
-
-
-                    runOnUiThread(new Runnable() {
-                        @Override public void run() {
-
-                            //showProgress(false);
-
-                            System.out.println("DEBIGGING-- " + "showProgress");
-
-
-                            // convert to bitmap:
-                            Bitmap bm = Bitmap.createBitmap(mDrawableRgba.cols(), mDrawableRgba.rows(),Bitmap.Config.ARGB_8888);
-                            Utils.matToBitmap(mDrawableRgba, bm);
-
-                            mProgressLayout.setVisibility(View.GONE);
-                            imageViewLayout.setVisibility(View.VISIBLE);
-
-                            // find the imageview and draw it!
-                            ImageView iv = (ImageView) findViewById(R.id.imageView1);
-                            iv.setImageBitmap(bm);
-
-
-                        }
-                    }); // runOnUIthread
-
-                    Thread.currentThread().interrupt();
-
-                }
-            }).start();
-
-
-
-
-
-
-
-            /*
-
-            inputFrame.rgba().copyTo(mRgba);
-            inputFrame.gray().copyTo(mGray);
-
-
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-
-                    showProgress(true);
-                    System.out.println("DEBIGGING-- " + "showProgress");
-                }
-            });
+            //final int origWidth = mRgba.cols();
+            //final int origHeight = mRgba.rows();
+            //final int origType = mRgba.type();
 
 
             Controller controller = new Controller(mRgba, mGray);
+
             System.out.println("DEBIGGING-- " + "preprocessImage");
             controller.preprocessImage();
             System.out.println("DEBIGGING-- " + "segmentImage");
             controller.segmentImage();
             System.out.println("DEBIGGING-- " + "computeCharacteristicVector");
             controller.computeCharacteristicVector();
-
 
             try {
 
@@ -558,97 +489,22 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             controller.resolveProblem();
 
 
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    showProgress(false);
-                }
-            });
-
-
-            System.out.println("CONTROLLER: preprocessing passed!");
 
             processing = false;
             touched = false;
-
-
-            */
-
-            //processing = false;
-            touched = false;
-
-
-            return controller.drawSudokuSquares(mRgba.width(), mRgba.height());
-
-
-
-        }
-
-        return inputFrame.rgba();
-    }
-
-
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-
-        if(processing) {
-            imageViewLayout.setVisibility(View.GONE);
+            afterProcessing = true;
             showProgress(false);
 
-            processing = false;
-            touched = false;
-        } else {
-            touched = true;
+            mProcessedMat = new Mat(mRgba.height(),mRgba.width(),mRgba.type());
+            mProcessedMat = controller.drawSudokuSquares(mRgba.width(), mRgba.height());
+            return mProcessedMat;
+
         }
 
-
-        return false;
-    }
-
-
-    public class ProcessImageTask extends AsyncTask<Void, Void, Mat> {
-
-
-
-        @Override
-        protected Mat doInBackground(Void... params) {
-
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(final Mat mat) {
-            mProcessTask = null;
-            //showProgress(false);
-
-            //Toast.makeText(mActivityContext, "DB saved Kofola : "+success.toString(), Toast.LENGTH_LONG).show();
-        }
-
-        @Override
-        protected void onCancelled() {
-            mProcessTask = null;
-            //showProgress(false);
-        }
-
-    }
-
-
-
-    public static final int COUNT_OF_DEMO_MODES = 5;
-    public static final int WHOLE_DEMO_TIME = 50;
-    public static final int DEMO = -1;
-    public static final int NORMAL = 0;
-    public static final int GAUS_7_GRAY = 1;
-    public static final int CANNY = 2;
-    public static final int CONTOURS = 3;
-    public static final int HOUGH_LINES = 4;
-    public static final int FIND_LETTERS = 5;
-
-
-    private Mat littleBitOfPreprocessing(CameraBridgeViewBase.CvCameraViewFrame inputFrame, int mode) {
-        // in here just scramble the egs and paint the beauty
-
+        if(afterProcessing)
+            return mProcessedMat;
+        else
+            return inputFrame.rgba();
 
 
 /*
@@ -740,7 +596,6 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         //  Thus something like contours, exhausting search etc. is not suitable here.
         */
 
-        return mRgba;
     }
 
     private void clearRGBAtoBlack() {
