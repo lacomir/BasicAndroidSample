@@ -15,6 +15,11 @@ import java.util.List;
  */
 public class CustomMathOperations {
 
+    public static final int ROTATE_LEFT = 0;
+    public static final int ROTATE_RIGHT = 1;
+
+
+
     public static Point subtractPoints(Point p1, Point p2) {
 
         return new Point(p1.x - p2.x, p1.y - p2.y);
@@ -273,6 +278,19 @@ public class CustomMathOperations {
         characteristics.add(statY.Kurtosis());
 
         return characteristics;
+
+    }
+
+    //0 for rotate left, 1 for rotate right
+    public static Mat rotateMat(Mat mat, int direction) {
+
+        Mat rotatedMat = new Mat(mat.rows(),mat.cols(),mat.type());
+        mat.copyTo(rotatedMat);
+
+        rotatedMat.t();
+        Core.flip(rotatedMat,rotatedMat,direction);
+
+        return rotatedMat;
 
     }
 

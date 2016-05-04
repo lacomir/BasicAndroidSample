@@ -1,5 +1,9 @@
 package com.bakalris.example.basicandroidsample;
 
+import android.graphics.Bitmap;
+import android.util.Log;
+
+import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -21,7 +25,9 @@ public class Controller {
     public String file;
     public Picture picture;
     public Hlavolam hlavolam;
+    public boolean isSudoku = true;
 
+    private static final String TAG = "Controller";
 
     Controller(Mat mRgba, Mat mGray) {
 
@@ -68,10 +74,13 @@ public class Controller {
         Imgproc.GaussianBlur(picture.grayscale, temp, new Size(5, 5), 0);
 
         Mat thresholded = new Mat(picture.grayscale.rows(),picture.grayscale.cols(),picture.grayscale.type());
+        Mat thresholdedInv = new Mat(picture.grayscale.rows(),picture.grayscale.cols(),picture.grayscale.type());
 
         Imgproc.adaptiveThreshold(temp,thresholded, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY_INV, 11, 2);
+        Imgproc.adaptiveThreshold(temp,thresholdedInv, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 11, 2);
 
         picture.setThresholded(thresholded);
+        picture.setThresholdedInv(thresholdedInv);
 
         Mat lines = new Mat();
         int threshold = 50;
@@ -118,18 +127,28 @@ public class Controller {
         if(picture.poi == null)
             return;
 
-        picture.removeIntersectionsOutOfSudokuRect();
+        try {
+            picture.removeIntersectionsOutOfSudokuRect();
+        } catch (Throwable e) {
+            e.printStackTrace();
+            Log.e(TAG, "segmentImage: removeIntersectionsOutOfSudokuRect() unsuccessful." );
+            return;
+        }
+
 
         //if(picture.poi != null)
             //System.out.println(picture.poi.toList().toString());
 
-        if(picture.poi.rows() != 100) { //throw exception
+        if(picture.poi.rows() < 100) { //throw exception
+            segmentOsemsmerovka();
             System.out.println("Segmentation of possible Sudoku failed. Can not find all sudoku squares.");
             return;
         }
-        else {
-            //isSudoku = true;
+        else if (picture.poi.rows() == 100){
+            isSudoku = true;
             segmentSudoku();
+        } else {
+            return;
         }
 
 
@@ -137,6 +156,29 @@ public class Controller {
         return;
 
 
+
+    }
+
+    private void segmentOsemsmerovka() {
+
+
+
+        Mat rotatedLeft = CustomMathOperations.rotateMat(picture.thresholdedInv,CustomMathOperations.ROTATE_LEFT);
+        Mat rotatedRight = CustomMathOperations.rotateMat(picture.thresholdedInv,CustomMathOperations.ROTATE_RIGHT);
+
+
+
+        Bitmap bmpLeft = Bitmap.createBitmap(rotatedLeft.cols(), rotatedLeft.rows(), Bitmap.Config.ARGB_8888);
+        Bitmap bmpRight = Bitmap.createBitmap(rotatedRight.cols(),rotatedRight.rows(), Bitmap.Config.ARGB_8888);
+
+        Utils.matToBitmap(rotatedLeft, bmpLeft);
+        Utils.matToBitmap(rotatedRight, bmpRight);
+
+        String s1 = OCRUtils.getOCRText(bmpLeft);
+        String s2 = OCRUtils.getOCRText(bmpRight);
+
+        Log.e(TAG, "segmentOsemsmerovka: Rotated left>" + s1 );
+        Log.e(TAG, "segmentOsemsmerovka: Rotated right>" + s2 );
 
     }
 

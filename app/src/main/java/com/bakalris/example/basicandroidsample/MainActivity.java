@@ -89,12 +89,6 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     private Mat mGray;
     private Mat mProcessedMat;
     private int mViewMode = -1;
-    private MenuItem mMenuItem_DEMO;
-    private MenuItem mMenuItem_NORMAL;
-    private MenuItem mMenuItem_GAUS_7_GRAY;
-    private MenuItem mMenuItem_CANNY;
-    private MenuItem mMenuItem_CONTOURS;
-    private MenuItem mMenuItem_HOUGH_LINES;
     private Size mFrameSize;
     // 8U : 8 unsigned ints per color = 256 values
     // C1 : only one color channel
@@ -144,8 +138,8 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         setContentView(R.layout.activity_main);
 
         // set toolbar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+//        setSupportActionBar(toolbar);
 
 
         /* init layouts for opencv
@@ -248,6 +242,12 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         // check if the value is already in
         textView.append("" + prefs.contains(somethingSmallKey));
 
+        if(!OCRUtils.initAppDataPath(this)) {
+
+            throw new IllegalStateException("Tesseract sa nepodarilo initnut. MainActivity:onCreate()");
+
+        }
+
     }
 
     private void showAllKofolas() {
@@ -262,12 +262,12 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         // add custom menu items without tempering with pre-compiled menu.xml file
-        mMenuItem_DEMO = menu.add("DEMO");
-        mMenuItem_NORMAL = menu.add("NORMAL");
-        mMenuItem_GAUS_7_GRAY = menu.add("GAUS_7_GRAY");
-        mMenuItem_CANNY = menu.add("CANNY");
-        mMenuItem_CONTOURS = menu.add("CONTOURS");
-        mMenuItem_HOUGH_LINES = menu.add("HOUGH_LINES");
+//        mMenuItem_DEMO = menu.add("DEMO");
+//        mMenuItem_NORMAL = menu.add("NORMAL");
+//        mMenuItem_GAUS_7_GRAY = menu.add("GAUS_7_GRAY");
+//        mMenuItem_CANNY = menu.add("CANNY");
+//        mMenuItem_CONTOURS = menu.add("CONTOURS");
+//        mMenuItem_HOUGH_LINES = menu.add("HOUGH_LINES");
         return true;
     }
 
@@ -279,21 +279,21 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        } else if (item == mMenuItem_DEMO) {
-            mViewMode = DEMO;
-        } else if (item == mMenuItem_NORMAL) {
-            mViewMode = NORMAL;
-        } else if (item == mMenuItem_GAUS_7_GRAY) {
-            mViewMode = GAUS_7_GRAY;
-        } else if (item == mMenuItem_CANNY) {
-            mViewMode = CANNY;
-        } else if (item == mMenuItem_CONTOURS) {
-            mViewMode = CONTOURS;
-        } else if (item == mMenuItem_HOUGH_LINES) {
-            mViewMode = HOUGH_LINES;
-        }
+//        if (id == R.id.action_settings) {
+//            return true;
+//        } else if (item == mMenuItem_DEMO) {
+//            mViewMode = DEMO;
+//        } else if (item == mMenuItem_NORMAL) {
+//            mViewMode = NORMAL;
+//        } else if (item == mMenuItem_GAUS_7_GRAY) {
+//            mViewMode = GAUS_7_GRAY;
+//        } else if (item == mMenuItem_CANNY) {
+//            mViewMode = CANNY;
+//        } else if (item == mMenuItem_CONTOURS) {
+//            mViewMode = CONTOURS;
+//        } else if (item == mMenuItem_HOUGH_LINES) {
+//            mViewMode = HOUGH_LINES;
+//        }
 
 
         return super.onOptionsItemSelected(item);
@@ -468,6 +468,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             System.out.println("DEBIGGING-- " + "preprocessImage");
             controller.preprocessImage();
             System.out.println("DEBIGGING-- " + "segmentImage");
+
             controller.segmentImage();
             System.out.println("DEBIGGING-- " + "computeCharacteristicVector");
             controller.computeCharacteristicVector();

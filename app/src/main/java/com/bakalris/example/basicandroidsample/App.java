@@ -2,6 +2,7 @@ package com.bakalris.example.basicandroidsample;
 
 import android.app.Application;
 import android.content.Context;
+import android.os.Environment;
 import android.telephony.TelephonyManager;
 
 import com.orm.SugarApp;
@@ -23,6 +24,8 @@ public class App extends SugarApp {
     private static Context mContext;
     private static Random r;
     private static App sInstance;
+
+    public static final String APP_DATA_PATH = Environment.getExternalStorageDirectory().toString() + "/Bakalarka/";
 
     public static App getInstance() {
         return sInstance;

@@ -28,6 +28,7 @@ public class Picture {
     public int transformedWidth;
     public int transformedHeight;
     public Mat perspectiveMatrix;
+    public Mat thresholdedInv;
 
     public Picture() {
         finalHorizontal = new ArrayList<>();
@@ -359,10 +360,10 @@ public class Picture {
             if(pom1 + pom2 > finalVertical.size())
                 return;
 
-            if(padLeft == -1 && finalVertical.get(i).intersection.size() > 0)
+            if(padLeft == -1 && finalVertical.get(i).intersection.size() > 1)
                 padLeft = i;
 
-            if(padRight == -1 && finalVertical.get(finalVertical.size() - i - 1).intersection.size() > 0)
+            if(padRight == -1 && finalVertical.get(finalVertical.size() - i - 1).intersection.size() > 1)
                 padRight = i;
 
             if(padLeft != -1 && padRight != -1)
@@ -383,10 +384,10 @@ public class Picture {
             if(pom1 + pom2 > finalHorizontal.size())
                 return;
 
-            if(padTop == -1 && finalHorizontal.get(i).intersection.size() > 0)
+            if(padTop == -1 && finalHorizontal.get(i).intersection.size() > 1)
                 padTop = i;
 
-            if(padBottom == -1 && finalHorizontal.get(finalHorizontal.size() - i - 1).intersection.size() > 0)
+            if(padBottom == -1 && finalHorizontal.get(finalHorizontal.size() - i - 1).intersection.size() > 1)
                 padBottom = i;
 
             if(padTop != -1 && padBottom != -1)
@@ -662,4 +663,8 @@ public class Picture {
 
     }
 
+
+    public void setThresholdedInv(Mat thresholdedInv) {
+        this.thresholdedInv = thresholdedInv;
+    }
 }
