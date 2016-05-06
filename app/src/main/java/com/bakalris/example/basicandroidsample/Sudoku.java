@@ -19,6 +19,8 @@ public class Sudoku extends Hlavolam {
     public static final int SUDOKU_LENGTH = 9;
     public static final int CV_FILLED = -1;
 
+    private ArrayList<int[][]> solutions = null;
+
     public Sudoku() {
         numbers = new Letter[SUDOKU_LENGTH][SUDOKU_LENGTH];
 
@@ -160,7 +162,7 @@ public class Sudoku extends Hlavolam {
     }
 
 
-    public ArrayList<int[][]> solveSudoku() {
+    public void solveSudoku() {
 
         List<int[]> list = new ArrayList<>();
 
@@ -182,7 +184,8 @@ public class Sudoku extends Hlavolam {
         DancingSudokuSolver problem = new DancingSudokuSolver(list);
         problem.solve();
 
-        return problem.getSols();
+        solutions = problem.getSols();
+
 
     }
 
@@ -194,5 +197,13 @@ public class Sudoku extends Hlavolam {
     @Override
     public void solveProblem() {
         solveSudoku();
+    }
+
+    public ArrayList<int[][]> getSolutions() {
+        return solutions;
+    }
+
+    public void setSolutions(ArrayList<int[][]> solutions) {
+        this.solutions = solutions;
     }
 }

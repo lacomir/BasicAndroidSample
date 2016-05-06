@@ -284,10 +284,18 @@ public class CustomMathOperations {
     //0 for rotate left, 1 for rotate right
     public static Mat rotateMat(Mat mat, int direction) {
 
+        /*
         Mat rotatedMat = new Mat(mat.rows(),mat.cols(),mat.type());
         mat.copyTo(rotatedMat);
 
         rotatedMat.t();
+        Core.flip(rotatedMat,rotatedMat,direction);
+        */
+
+        Mat rotatedMat = new Mat(mat.rows(),mat.cols(),mat.type());
+        mat.copyTo(rotatedMat);
+
+        Core.transpose(rotatedMat,rotatedMat);
         Core.flip(rotatedMat,rotatedMat,direction);
 
         return rotatedMat;

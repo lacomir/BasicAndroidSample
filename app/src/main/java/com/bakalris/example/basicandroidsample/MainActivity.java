@@ -377,9 +377,9 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
 
 
-        mRgba = new Mat(height, width, CvType.CV_8UC4);
+        mRgba = new Mat(width, height, CvType.CV_8UC4);
         mIntermediateMat = new Mat(height, width, CvType.CV_8UC4);
-        mGray = new Mat(height, width, CvType.CV_8UC1);
+        mGray = new Mat(width, height, CvType.CV_8UC1);
 
         mFrameSize = new Size(width, height);
     }
@@ -442,8 +442,8 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
 
 
-        inputFrame.rgba().copyTo(mRgba);
-        inputFrame.gray().copyTo(mGray);
+//        inputFrame.rgba().copyTo(mRgba);
+//        inputFrame.gray().copyTo(mGray);
 
 
         if(touched && !processing) {
@@ -455,8 +455,16 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             System.out.println("CONTROLLER: preprocessing started!");
 
 
-            inputFrame.rgba().copyTo(mRgba);
-            inputFrame.gray().copyTo(mGray);
+//            inputFrame.rgba().copyTo(mRgba);
+//            inputFrame.gray().copyTo(mGray);
+
+            Mat matRgba = new Mat(inputFrame.rgba().rows(),inputFrame.rgba().cols(),inputFrame.rgba().type());
+            inputFrame.rgba().copyTo(matRgba);
+            Mat matGray = new Mat(inputFrame.gray().rows(),inputFrame.gray().cols(),inputFrame.gray().type());
+            inputFrame.gray().copyTo(matGray);
+
+            CustomMathOperations.rotateMat(matRgba,CustomMathOperations.ROTATE_RIGHT).copyTo(mRgba);
+            CustomMathOperations.rotateMat(matGray,CustomMathOperations.ROTATE_RIGHT).copyTo(mGray);
 
             //final int origWidth = mRgba.cols();
             //final int origHeight = mRgba.rows();
@@ -497,7 +505,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             showProgress(false);
 
             mProcessedMat = new Mat(mRgba.height(),mRgba.width(),mRgba.type());
-            mProcessedMat = controller.drawSudokuSquares(mRgba.width(), mRgba.height());
+            mProcessedMat = controller.drawSudokuSquares(mRgba.height(), mRgba.width());
             return mProcessedMat;
 
         }

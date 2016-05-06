@@ -27,6 +27,8 @@ public class Controller {
     public Hlavolam hlavolam;
     public boolean isSudoku = true;
 
+    ArrayList<int[][]> sols = null;
+
     private static final String TAG = "Controller";
 
     Controller(Mat mRgba, Mat mGray) {
@@ -163,22 +165,21 @@ public class Controller {
 
 
 
-        Mat rotatedLeft = CustomMathOperations.rotateMat(picture.thresholdedInv,CustomMathOperations.ROTATE_LEFT);
-        Mat rotatedRight = CustomMathOperations.rotateMat(picture.thresholdedInv,CustomMathOperations.ROTATE_RIGHT);
+//        Mat rotatedLeft = CustomMathOperations.rotateMat(picture.thresholdedInv,CustomMathOperations.ROTATE_LEFT);
+//        Mat rotatedRight = CustomMathOperations.rotateMat(picture.thresholdedInv,CustomMathOperations.ROTATE_RIGHT);
+//
 
+        Bitmap bmpLeft = Bitmap.createBitmap(picture.grayscale.cols(), picture.grayscale.rows(), Bitmap.Config.ARGB_8888);
+        Bitmap bmpRight = Bitmap.createBitmap(picture.thresholdedInv.cols(),picture.thresholdedInv.rows(), Bitmap.Config.ARGB_8888);
 
-
-        Bitmap bmpLeft = Bitmap.createBitmap(rotatedLeft.cols(), rotatedLeft.rows(), Bitmap.Config.ARGB_8888);
-        Bitmap bmpRight = Bitmap.createBitmap(rotatedRight.cols(),rotatedRight.rows(), Bitmap.Config.ARGB_8888);
-
-        Utils.matToBitmap(rotatedLeft, bmpLeft);
-        Utils.matToBitmap(rotatedRight, bmpRight);
+        Utils.matToBitmap(picture.grayscale, bmpLeft);
+        Utils.matToBitmap(picture.thresholdedInv, bmpRight);
 
         String s1 = OCRUtils.getOCRText(bmpLeft);
-        String s2 = OCRUtils.getOCRText(bmpRight);
+        Log.e(TAG, "segmentOsemsmerovka: Rotated gray>" + s1 );
 
-        Log.e(TAG, "segmentOsemsmerovka: Rotated left>" + s1 );
-        Log.e(TAG, "segmentOsemsmerovka: Rotated right>" + s2 );
+        String s2 = OCRUtils.getOCRText(bmpRight);
+        Log.e(TAG, "segmentOsemsmerovka: Rotated thresholded>" + s2 );
 
     }
 
@@ -257,7 +258,8 @@ public class Controller {
         for(int i = 0; i < hlavolam.rows; i++) {
             for(int j = 0; j < hlavolam.cols; j++) {
 
-                hlavolam.getLetters()[i][j].computeCharacteristics();
+                System.out.println("DEBUGING > [" + i +"][" + j + "] has char:" + hlavolam.getLetters()[i][j].getHasChar());
+                        hlavolam.getLetters()[i][j].computeCharacteristics();
 
             }
         }
@@ -293,7 +295,12 @@ public class Controller {
         if(hlavolam == null)
             return;
 
+
+
         hlavolam.solveProblem();
+
+        Sudoku sudoku = (Sudoku) hlavolam;
+        sols = sudoku.getSolutions();
 
     }
 
@@ -364,11 +371,44 @@ public class Controller {
                 else
                     color = new Scalar(0,255,0);
 
-                Imgproc.rectangle( rgba, hlavolam.getLetters()[i][j].rect.tl(), hlavolam.getLetters()[i][j].rect.br(), color, 2, 8, 0 );
+                //Imgproc.rectangle( rgba, hlavolam.getLetters()[i][j].rect.tl(), hlavolam.getLetters()[i][j].rect.br(), color, 2, 8, 0 );
+
+                Log.e(TAG, "drawSudokuSquares: Size>" + sols.size() + " IsEmpty> " + sols.isEmpty() + " String> " +sols.toString());
+
+                if(sols.isEmpty()) {
+                    if(hlavolam.getLetters()[i][j].getHasChar()) {
+                        Point segment[] = hlavolam.getLetters()[i][j].getSegment().toArray();
+                        Imgproc.putText(rgba, hlavolam.getLetters()[i][j].character, segment[2], Core.FONT_HERSHEY_SIMPLEX, 1.5, new Scalar(255,0,0), 5);
+
+                    } else {
+
+                        Point segment[] = hlavolam.getLetters()[i][j].getSegment().toArray();
+                        Imgproc.putText(rgba, "X", segment[2], Core.FONT_HERSHEY_SIMPLEX, 3, new Scalar(0,0,255), 5);
+                    }
+
+
+                } else {
+
+                    int sol[][] = sols.get(0);
+
+                    if(hlavolam.getLetters()[i][j].getHasChar()) {
+                        Point segment[] = hlavolam.getLetters()[i][j].getSegment().toArray();
+                        Imgproc.putText(rgba, hlavolam.getLetters()[i][j].character, segment[2], Core.FONT_HERSHEY_SIMPLEX, 1.5, new Scalar(255,0,0), 5);
+
+                    } else {
+
+                        Point segment[] = hlavolam.getLetters()[i][j].getSegment().toArray();
+                        Imgproc.putText(rgba, Integer.toString(sol[i][j]), segment[2], Core.FONT_HERSHEY_SIMPLEX, 3, new Scalar(0,0,255), 5);
+                    }
+
+                }
+
+
             }
         }
 
-        Mat resizeimage = new Mat(height,width,rgba.type());
+        rgba = CustomMathOperations.rotateMat(rgba,CustomMathOperations.ROTATE_LEFT);
+        Mat resizeimage = new Mat(width,height,rgba.type());
         Size sz = new Size(width,height);
         Imgproc.resize( rgba, resizeimage, sz );
 
