@@ -305,24 +305,24 @@ public class Controller {
     }
 
 
-
-    public Mat drawMergedLines(Mat mRgba) {
-
-        for(int i = 0; i < picture.finalHorizontal.size(); i++) {
-
-            Imgproc.line(mRgba, picture.finalHorizontal.get(i).getStart(), picture.finalHorizontal.get(i).getEnd(), new Scalar(255, 0, 0), 3);
-
-        }
-
-        for(int i = 0; i < picture.finalVertical.size(); i++) {
-
-            Imgproc.line(mRgba, picture.finalVertical.get(i).getStart(), picture.finalVertical.get(i).getEnd(), new Scalar(255, 0, 0), 3);
-
-        }
-
-        return mRgba;
-
-    }
+//
+//    public Mat drawMergedLines(Mat mRgba) {
+//
+//        for(int i = 0; i < picture.finalHorizontal.size(); i++) {
+//
+//            Imgproc.line(mRgba, picture.finalHorizontal.get(i).getStart(), picture.finalHorizontal.get(i).getEnd(), new Scalar(255, 0, 0), 3);
+//
+//        }
+//
+//        for(int i = 0; i < picture.finalVertical.size(); i++) {
+//
+//            Imgproc.line(mRgba, picture.finalVertical.get(i).getStart(), picture.finalVertical.get(i).getEnd(), new Scalar(255, 0, 0), 3);
+//
+//        }
+//
+//        return mRgba;
+//
+//    }
 
     public Mat drawMergedLinesAfterTransform(int width, int height) {
 
@@ -342,6 +342,7 @@ public class Controller {
         }
 
 
+        rgba = CustomMathOperations.rotateMat(rgba,CustomMathOperations.ROTATE_LEFT);
         Mat resizeimage = new Mat(width,height,rgba.type());
         Size sz = new Size(width,height);
         Imgproc.resize( rgba, resizeimage, sz );

@@ -158,89 +158,93 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
                 END
          */
 
-        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        final TextView textView = (TextView) findViewById(R.id.hello);
+//        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+//        final TextView textView = (TextView) findViewById(R.id.hello);
 
         // reference activity for embeded function calls
-        final Activity a =  this;
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // CONVENIENT MESSAGE TYPE 1
-                // only if using com.android.support:design:x.y.z library
-                // it has action possibility :
-                // more after self study :
-                // http://www.androidhive.info/2015/09/android-material-design-snackbar-example/
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-
-                // CONVENIENT MESSAGE TYPE 2
-                // This is in since the droid walked the earth side by side with Google
-                Toast.makeText(a, "Replace with your own action", Toast.LENGTH_LONG)
-                        .show();
-
-                // HOW TO SLEEP AND RUN SOMETHING AFTER THE TIME :
-                //
-                int SLEEP_INTERVAL_MS = 5000;
-                Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    public void run() {
-                        fab.setVisibility(View.VISIBLE);
-                    }
-                }, SLEEP_INTERVAL_MS);
-
-                // SET VISIBILITY OF BUTTON
-                fab.setVisibility(View.GONE);
-
-
-                // HOW TO RUN SOMETHING ON ANOTHER THAN UI THREAD :
-                //
-                Handler handler2 = new Handler();
-                handler2.post(new Runnable() {
-                    public void run() {
-                        textView.append("\n wof wof");
-                    }
-                });
-
-                // CALL ANOTHER ACTIVITY
-                showAllKofolas();
-            }
-        });
-        FloatingActionButton fabLogin = (FloatingActionButton) findViewById(R.id.fabLogin);
-        fabLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(a, LoginActivity.class);
-                //intent.putExtra(.BUNDLE_DATA, mItemResult.getUser_login());
-                startActivity(intent);
-            }
-        });
-
-        // get string from resources
-        String appName = getResources().getString(R.string.app_name);
-
-        // get int from resources
-        mInt = getResources().getInteger(R.integer.vyska);
-
-        // set text to text view
-        textView.setText(textView.getText() + " " + mInt);
-
-        // get variables from persistence layer : Shared Preferences approach
-        // Access shared preferences space
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(App.getContext());
-        // write into it
-        // indexing is based upon string key words
-        // don`t forget to commit changes, after changing local SharedPreferences instance
-        String somethingSmallKey = "somethingSmall";
-        prefs.edit().putInt(somethingSmallKey, mInt).commit();
-        // read from it
-        // indexing is the same
-        // after writing in some type of object the same type of object has to be read
-        // we can choose from various types : Boolean, Int, Long, Float, Double, String, StringSet
-        int readPrefsVal = prefs.getInt(somethingSmallKey, 0);
-        textView.setText(textView.getText() + "\n Prefs Val : " + readPrefsVal);
-        // check if the value is already in
-        textView.append("" + prefs.contains(somethingSmallKey));
+//
+//
+//        final Activity a =  this;
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                // CONVENIENT MESSAGE TYPE 1
+//                // only if using com.android.support:design:x.y.z library
+//                // it has action possibility :
+//                // more after self study :
+//                // http://www.androidhive.info/2015/09/android-material-design-snackbar-example/
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+//
+//                // CONVENIENT MESSAGE TYPE 2
+//                // This is in since the droid walked the earth side by side with Google
+//                Toast.makeText(a, "Replace with your own action", Toast.LENGTH_LONG)
+//                        .show();
+//
+//                // HOW TO SLEEP AND RUN SOMETHING AFTER THE TIME :
+//                //
+//                int SLEEP_INTERVAL_MS = 5000;
+//                Handler handler = new Handler();
+//                handler.postDelayed(new Runnable() {
+//                    public void run() {
+//                        fab.setVisibility(View.VISIBLE);
+//                    }
+//                }, SLEEP_INTERVAL_MS);
+//
+//                // SET VISIBILITY OF BUTTON
+//                fab.setVisibility(View.GONE);
+//
+//
+//                // HOW TO RUN SOMETHING ON ANOTHER THAN UI THREAD :
+//                //
+//                Handler handler2 = new Handler();
+//                handler2.post(new Runnable() {
+//                    public void run() {
+//                        textView.append("\n wof wof");
+//                    }
+//                });
+//
+//                // CALL ANOTHER ACTIVITY
+//                showAllKofolas();
+//            }
+//        });
+//        FloatingActionButton fabLogin = (FloatingActionButton) findViewById(R.id.fabLogin);
+//        fabLogin.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent intent = new Intent(a, LoginActivity.class);
+//                //intent.putExtra(.BUNDLE_DATA, mItemResult.getUser_login());
+//                startActivity(intent);
+//            }
+//        });
+//
+//        // get string from resources
+//        String appName = getResources().getString(R.string.app_name);
+//
+//        // get int from resources
+//        mInt = getResources().getInteger(R.integer.vyska);
+//
+//        // set text to text view
+//        textView.setText(textView.getText() + " " + mInt);
+//
+//        // get variables from persistence layer : Shared Preferences approach
+//        // Access shared preferences space
+//        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(App.getContext());
+//        // write into it
+//        // indexing is based upon string key words
+//        // don`t forget to commit changes, after changing local SharedPreferences instance
+//        String somethingSmallKey = "somethingSmall";
+//        prefs.edit().putInt(somethingSmallKey, mInt).commit();
+//        // read from it
+//        // indexing is the same
+//        // after writing in some type of object the same type of object has to be read
+//        // we can choose from various types : Boolean, Int, Long, Float, Double, String, StringSet
+//        int readPrefsVal = prefs.getInt(somethingSmallKey, 0);
+//        textView.setText(textView.getText() + "\n Prefs Val : " + readPrefsVal);
+//        // check if the value is already in
+//        textView.append("" + prefs.contains(somethingSmallKey));
+//
+//
 
         if(!OCRUtils.initAppDataPath(this)) {
 
@@ -250,54 +254,54 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
     }
 
-    private void showAllKofolas() {
-        // open new activity from class reference
-        // it has to be in manifest
-        Intent intent = new Intent(this, DbViewActivity.class);
-        startActivity(intent);
-    }
+//    private void showAllKofolas() {
+//        // open new activity from class reference
+//        // it has to be in manifest
+//        Intent intent = new Intent(this, DbViewActivity.class);
+//        startActivity(intent);
+//    }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        // add custom menu items without tempering with pre-compiled menu.xml file
-//        mMenuItem_DEMO = menu.add("DEMO");
-//        mMenuItem_NORMAL = menu.add("NORMAL");
-//        mMenuItem_GAUS_7_GRAY = menu.add("GAUS_7_GRAY");
-//        mMenuItem_CANNY = menu.add("CANNY");
-//        mMenuItem_CONTOURS = menu.add("CONTOURS");
-//        mMenuItem_HOUGH_LINES = menu.add("HOUGH_LINES");
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-//        if (id == R.id.action_settings) {
-//            return true;
-//        } else if (item == mMenuItem_DEMO) {
-//            mViewMode = DEMO;
-//        } else if (item == mMenuItem_NORMAL) {
-//            mViewMode = NORMAL;
-//        } else if (item == mMenuItem_GAUS_7_GRAY) {
-//            mViewMode = GAUS_7_GRAY;
-//        } else if (item == mMenuItem_CANNY) {
-//            mViewMode = CANNY;
-//        } else if (item == mMenuItem_CONTOURS) {
-//            mViewMode = CONTOURS;
-//        } else if (item == mMenuItem_HOUGH_LINES) {
-//            mViewMode = HOUGH_LINES;
-//        }
-
-
-        return super.onOptionsItemSelected(item);
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        // Inflate the menu; this adds items to the action bar if it is present.
+//        getMenuInflater().inflate(R.menu.menu_main, menu);
+//        // add custom menu items without tempering with pre-compiled menu.xml file
+////        mMenuItem_DEMO = menu.add("DEMO");
+////        mMenuItem_NORMAL = menu.add("NORMAL");
+////        mMenuItem_GAUS_7_GRAY = menu.add("GAUS_7_GRAY");
+////        mMenuItem_CANNY = menu.add("CANNY");
+////        mMenuItem_CONTOURS = menu.add("CONTOURS");
+////        mMenuItem_HOUGH_LINES = menu.add("HOUGH_LINES");
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        // Handle action bar item clicks here. The action bar will
+//        // automatically handle clicks on the Home/Up button, so long
+//        // as you specify a parent activity in AndroidManifest.xml.
+//        int id = item.getItemId();
+//
+//        //noinspection SimplifiableIfStatement
+////        if (id == R.id.action_settings) {
+////            return true;
+////        } else if (item == mMenuItem_DEMO) {
+////            mViewMode = DEMO;
+////        } else if (item == mMenuItem_NORMAL) {
+////            mViewMode = NORMAL;
+////        } else if (item == mMenuItem_GAUS_7_GRAY) {
+////            mViewMode = GAUS_7_GRAY;
+////        } else if (item == mMenuItem_CANNY) {
+////            mViewMode = CANNY;
+////        } else if (item == mMenuItem_CONTOURS) {
+////            mViewMode = CONTOURS;
+////        } else if (item == mMenuItem_HOUGH_LINES) {
+////            mViewMode = HOUGH_LINES;
+////        }
+//
+//
+//        return super.onOptionsItemSelected(item);
+//    }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -392,7 +396,6 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
     }
 
-    Mat mDrawableRgba;
 
     @Override
     public Mat onCameraFrame(final CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
@@ -425,21 +428,19 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
 
 
-
-    public static final int COUNT_OF_DEMO_MODES = 5;
-    public static final int WHOLE_DEMO_TIME = 50;
-    public static final int DEMO = -1;
-    public static final int NORMAL = 0;
-    public static final int GAUS_7_GRAY = 1;
-    public static final int CANNY = 2;
-    public static final int CONTOURS = 3;
-    public static final int HOUGH_LINES = 4;
-    public static final int FIND_LETTERS = 5;
+//
+//    public static final int COUNT_OF_DEMO_MODES = 5;
+//    public static final int WHOLE_DEMO_TIME = 50;
+//    public static final int DEMO = -1;
+//    public static final int NORMAL = 0;
+//    public static final int GAUS_7_GRAY = 1;
+//    public static final int CANNY = 2;
+//    public static final int CONTOURS = 3;
+//    public static final int HOUGH_LINES = 4;
+//    public static final int FIND_LETTERS = 5;
 
 
     private Mat littleBitOfPreprocessing(CameraBridgeViewBase.CvCameraViewFrame inputFrame, int mode) {
-        // in here just scramble the egs and paint the beauty
-
 
 
 //        inputFrame.rgba().copyTo(mRgba);
@@ -516,111 +517,22 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             return inputFrame.rgba();
 
 
-/*
-        switch (mode) {
-            case NORMAL:
-                mRgba = inputFrame.rgba();
-                break;
-            case GAUS_7_GRAY:
-                Imgproc.GaussianBlur(inputFrame.gray(), mGray, new Size(7, 7), 0.3);
-                Imgproc.cvtColor(mGray, mRgba, Imgproc.COLOR_GRAY2RGBA, 4);
-                break;
-            case CANNY:
-                Imgproc.Canny(inputFrame.gray(), mIntermediateMat, 80, 100);
-                Imgproc.cvtColor(mIntermediateMat, mRgba, Imgproc.COLOR_GRAY2RGBA, 4);
-                break;
-            case CONTOURS:
-                mGray = inputFrame.gray();
-                List<MatOfPoint> contours = new ArrayList<>();
-                Mat hierarchy = new Mat();
-                Imgproc.Canny(mGray, mIntermediateMat, 70, 223);
-                Imgproc.findContours(mIntermediateMat, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE, new Point(0, 0));
-                hierarchy.release();
-                clearRGBAtoBlack();
-                Imgproc.drawContours(mRgba, contours, -1, new Scalar(App.getRandom().nextInt(255), App.getRandom().nextInt(255), App.getRandom().nextInt(255))); // -1 for drawing all of them
-                break;
-            case HOUGH_LINES:
-
-                // this processing should be done without previews,
-                // because it is way too slow to count and draw all the lines .. under 3 FPS
-
-//                Imgproc.Sobel(inputFrame.gray(), mGray, inputFrame.gray().depth(), 0, 1, 3, 1, 0);
-//                Imgproc.threshold(mGray, mGray, 0, 255, Imgproc.THRESH_OTSU | Imgproc.THRESH_BINARY);
-                Imgproc.Canny(inputFrame.gray(), mIntermediateMat, 80, 100);
-
-                Mat lines = new Mat();
-                int threshold = 100;
-                int minLineSize = 10;
-                int lineGap = 2;
-
-                Imgproc.HoughLinesP(mIntermediateMat, lines, 1, Math.PI / 180, threshold, minLineSize, lineGap);
-
-
-                List <Mat> toBeMerged = new ArrayList<>();
-                toBeMerged.add(mIntermediateMat);
-                toBeMerged.add(mIntermediateMat);
-                toBeMerged.add(mIntermediateMat);
-                toBeMerged.add(Mat.ones(mFrameSize, GRAY_TYPE));
-                Core.merge(toBeMerged, mRgba);
-
-                // check the lines in output - dimensions does not copy cpp implementation
-                Log.e(TAG, "littleBitOfPreprocessing: lines.toString() :"+ lines.toString());
-                Log.e(TAG, "littleBitOfPreprocessing: lines.rows() :"+ lines.rows());
-                Log.e(TAG, "littleBitOfPreprocessing: lines.cols() :"+ lines.cols());
-
-                int maxDrawnLines = 20;
-                for (int row = 0; row < lines.rows() && row < maxDrawnLines; row++)
-                {
-                    double[] vec = lines.get(row, 0);
-
-                    double x1 = vec[0],
-                            y1 = vec[1],
-                            x2 = vec[2],
-                            y2 = vec[3];
-                    Point start = new Point(x1, y1);
-                    Point end = new Point(x2, y2);
-                    Log.e(TAG, "littleBitOfPreprocessing: line ["+row+"] : "+start+" "+end );
-                    Imgproc.line(mRgba, start, end, new Scalar(0, 255, 0), 3);
-                }
-                break;
-            case FIND_LETTERS:
-                // TODO : detect letters with cascade filter
-                // TODO : stop camera preview and show only progress bar
-                // TODO : run new async task for background processing of found objects
-                //           and don`t forget to restore preview and hide progress bar
-                //
-                //
-                // TODO : set some timer to kill the task if not done under 30 sec
-                //
-            default:
-                mRgba = inputFrame.rgba();
-        }
-        // In here only fast preprocessing should be done !!!
-        //
-        // After we find our object of interest in the image,
-        //  take the image and do the real processing on background thread,
-        //  while user see only the progress bar.
-        //
-        // Otherwise our screen freeze until processing is done, which is bad UI pattern.
-        //  Thus something like contours, exhausting search etc. is not suitable here.
-        */
-
     }
 
-    private void clearRGBAtoBlack() {
-        mRgba = Mat.zeros(mFrameSize,COLOR_TYPE);
-    }
+//    private void clearRGBAtoBlack() {
+//        mRgba = Mat.zeros(mFrameSize,COLOR_TYPE);
+//    }
 
     /*
     *   @param modesCount - positive integer
     *   @return index of the mode in between 0 and modesCount
      */
-    private int roundRobinMode(int modesCount, int roundTime) {
-        long timestamp = System.currentTimeMillis() / 1000;
-        int current = (int) (timestamp % roundTime);
-        int step = (int) (roundTime / modesCount);
-        return current / step;
-    }
+//    private int roundRobinMode(int modesCount, int roundTime) {
+//        long timestamp = System.currentTimeMillis() / 1000;
+//        int current = (int) (timestamp % roundTime);
+//        int step = (int) (roundTime / modesCount);
+//        return current / step;
+//    }
 
     private KNearest initDigitKnn() throws IOException {
 
