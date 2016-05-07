@@ -146,12 +146,16 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         mOpenCvCameraView.setCvCameraViewListener(this);
 
 
+        try {
 
-        if(!OCRUtils.initAppDataPath(this)) {
+            OCRUtils.initAppDataPath(this);
 
-            throw new IllegalStateException("Tesseract sa nepodarilo initnut. MainActivity:onCreate()");
-
+        } catch (Throwable e) {
+            e.printStackTrace();
+            Log.e(TAG, "MainActivity:onCreate(): Tesseract not initialized!!");
         }
+
+
 
     }
 
@@ -238,6 +242,18 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         mGray = new Mat(width, height, CvType.CV_8UC1);
 
         mFrameSize = new Size(width, height);
+
+        try {
+
+            KNearestDigitRecognition.getInstance().setKnn(initDigitKnn());
+            Log.e(TAG, "MainActivity:onCreate(): KNN inicialized successfuly.");
+
+        } catch (Throwable e) {
+            e.printStackTrace();
+            Log.e(TAG, "MainActivity:onCreate(): KNN not initialized!!");
+        }
+
+
     }
 
     @Override
@@ -283,15 +299,10 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
     private Mat littleBitOfPreprocessing(CameraBridgeViewBase.CvCameraViewFrame inputFrame, int mode) {
 
-
         if(touched && !processing) {
-
 
             processing = true;
             showProgress(true);
-
-            System.out.println("CONTROLLER: preprocessing started!");
-
 
             Mat matRgba = new Mat(inputFrame.rgba().rows(),inputFrame.rgba().cols(),inputFrame.rgba().type());
             inputFrame.rgba().copyTo(matRgba);
@@ -302,32 +313,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             CustomMathOperations.rotateMat(matGray,CustomMathOperations.ROTATE_RIGHT).copyTo(mGray);
 
             Controller controller = new Controller(mRgba, mGray);
-
-            System.out.println("DEBIGGING-- " + "preprocessImage");
-            controller.preprocessImage();
-            System.out.println("DEBIGGING-- " + "segmentImage");
-
-            controller.segmentImage();
-            System.out.println("DEBIGGING-- " + "computeCharacteristicVector");
-            controller.computeCharacteristicVector();
-
-            try {
-
-                KNearestDigitRecognition.getInstance().setKnn(initDigitKnn());
-                System.out.println("DEBIGGING-- " + "recognizeCharacters");
-                controller.recognizeCharacters(KNearestDigitRecognition.getInstance().getKnn());
-
-            } catch (IOException e) {
-                System.err.println("Couldn't open train data for KNN digit recognition.");
-                e.printStackTrace();
-            } finally {
-                System.out.println("KNN created successfuly!");
-            }
-
-            System.out.println("DEBIGGING-- " + "resolveProblem");
-            controller.resolveProblem();
-
-
+            controller.processImage();
 
             processing = false;
             touched = false;

@@ -40,35 +40,22 @@ public class Controller {
 
     }
 
-    /*
-    public void loadImage(String filename)
-    {
 
-        image = imread(filename + ".jpg", IMREAD_COLOR); // Read the file
+    public void processImage() {
 
-        if( image.empty() ) // Check for invalid input
-        {
-            cout << "Could not open or find the image" << std::endl ;
-            exit;
+        Log.e(TAG, "processImage: preprocessImage()");
+        preprocessImage();
+        Log.e(TAG, "processImage: segmentImage()");
+        segmentImage();
+        if(isSudoku) {
+            Log.e(TAG, "processImage: computeCharacteristicVector()");
+            computeCharacteristicVector();
+            Log.e(TAG, "processImage: resolveProblem()");
+            recognizeCharacters();
         }
-
-        float ratioHeight = 760.0 / (float) image.rows;
-        float ratioWidth = 1280.0 / (float) image.cols;
-
-        cout << ratioHeight << endl;
-        cout << ratioWidth << endl;
-
-        cout << (image.cols * min(ratioHeight,ratioWidth)) << endl;
-        cout << (image.rows * min(ratioHeight,ratioWidth)) << endl;
-
-        if(min(ratioHeight,ratioWidth) < 1) {
-            resize(image,image,Size((image.cols * min(ratioHeight,ratioWidth)),(image.rows * min(ratioHeight,ratioWidth))));
-        }
-
-        file = filename;
+        resolveProblem();
 
     }
-    */
 
     public void preprocessImage() {
 
@@ -164,11 +151,6 @@ public class Controller {
     private void segmentOsemsmerovka() {
 
 
-
-//        Mat rotatedLeft = CustomMathOperations.rotateMat(picture.thresholdedInv,CustomMathOperations.ROTATE_LEFT);
-//        Mat rotatedRight = CustomMathOperations.rotateMat(picture.thresholdedInv,CustomMathOperations.ROTATE_RIGHT);
-//
-
         Bitmap bmpLeft = Bitmap.createBitmap(picture.grayscale.cols(), picture.grayscale.rows(), Bitmap.Config.ARGB_8888);
         Bitmap bmpRight = Bitmap.createBitmap(picture.thresholdedInv.cols(),picture.thresholdedInv.rows(), Bitmap.Config.ARGB_8888);
 
@@ -185,26 +167,8 @@ public class Controller {
 
     public void segmentSudoku() {
 
-        List<Point> pts = new ArrayList<>();
-        pts = picture.poi.toList();
+        List<Point> pts = picture.poi.toList();
 
-        /*
-        ArrayList<ArrayList<Point>> field = new ArrayList<>();
-
-        for(int i = 0; i < 10; i++) {
-            field.add(new ArrayList<Point>());
-            for (int j = 0; j < 10; j++) {
-                field.get(i).add(pts.get(i*10+j));
-            }
-        }
-        */
-        /*
-        for(int i = 0; i < 10; i++)
-        {
-            vector<Point2f> vec(picture.poi.begin() + (i*10), picture.poi.begin() + (i+1)*10);
-            field.push_back(vec);
-        }
-        */
 
         Sudoku sudoku = new Sudoku();
 
@@ -268,7 +232,9 @@ public class Controller {
     }
 
 
-    public void recognizeCharacters(KNearest knn) {
+    public void recognizeCharacters() {
+
+        KNearest knn = KNearestDigitRecognition.getInstance().getKnn();
 
         if(hlavolam == null)
             return;
@@ -277,10 +243,6 @@ public class Controller {
             for(int j = 0; j < hlavolam.cols; j++) {
 
                 hlavolam.getLetters()[i][j].recognizeChar(knn);
-
-                if(hlavolam.getLetters()[i][j].hasChar) {
-                    System.out.println("DEBUGGING-knn- [" + i + "][" + j + "] : " + hlavolam.getLetters()[i][j].getCharacter());
-                }
 
             }
         }
@@ -292,37 +254,19 @@ public class Controller {
 
     public void resolveProblem() {
 
-        if(hlavolam == null)
-            return;
+        if(isSudoku) {
+            if (hlavolam == null)
+                return;
 
+            hlavolam.solveProblem();
 
-
-        hlavolam.solveProblem();
-
-        Sudoku sudoku = (Sudoku) hlavolam;
-        sols = sudoku.getSolutions();
+            Sudoku sudoku = (Sudoku) hlavolam;
+            sols = sudoku.getSolutions();
+        }
 
     }
 
 
-//
-//    public Mat drawMergedLines(Mat mRgba) {
-//
-//        for(int i = 0; i < picture.finalHorizontal.size(); i++) {
-//
-//            Imgproc.line(mRgba, picture.finalHorizontal.get(i).getStart(), picture.finalHorizontal.get(i).getEnd(), new Scalar(255, 0, 0), 3);
-//
-//        }
-//
-//        for(int i = 0; i < picture.finalVertical.size(); i++) {
-//
-//            Imgproc.line(mRgba, picture.finalVertical.get(i).getStart(), picture.finalVertical.get(i).getEnd(), new Scalar(255, 0, 0), 3);
-//
-//        }
-//
-//        return mRgba;
-//
-//    }
 
     public Mat drawMergedLinesAfterTransform(int width, int height) {
 
