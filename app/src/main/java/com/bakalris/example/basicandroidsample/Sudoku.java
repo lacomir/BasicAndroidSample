@@ -203,7 +203,5 @@ public class Sudoku extends Hlavolam {
         return solutions;
     }
 
-    public void setSolutions(ArrayList<int[][]> solutions) {
-        this.solutions = solutions;
-    }
+
 }

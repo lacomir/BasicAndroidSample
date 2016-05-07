@@ -27,7 +27,11 @@ public class Controller {
     public Hlavolam hlavolam;
     public boolean isSudoku = true;
 
+    //Sudoku solutions
     ArrayList<int[][]> sols = null;
+
+    //WordPuzzle solution
+    String puzzleSol = null;
 
     private static final String TAG = "Controller";
 
@@ -254,14 +258,21 @@ public class Controller {
 
     public void resolveProblem() {
 
-        if(isSudoku) {
-            if (hlavolam == null)
-                return;
+        if (hlavolam == null)
+            return;
 
-            hlavolam.solveProblem();
+        hlavolam.solveProblem();
+
+        if(isSudoku) {
 
             Sudoku sudoku = (Sudoku) hlavolam;
             sols = sudoku.getSolutions();
+
+        } else {
+
+            Osemsmerovka osemsmerovka = (Osemsmerovka) hlavolam;
+            puzzleSol = osemsmerovka.getSolution();
+
         }
 
     }
@@ -299,7 +310,7 @@ public class Controller {
     public Mat drawSudokuSquares(int width, int height) {
 
 
-        if(hlavolam == null) {
+        if(hlavolam == null || isSudoku != true) {
             return drawMergedLinesAfterTransform( width, height);
         }
 

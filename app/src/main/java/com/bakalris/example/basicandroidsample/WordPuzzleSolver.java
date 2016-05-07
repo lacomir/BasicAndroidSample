@@ -37,7 +37,7 @@ public class WordPuzzleSolver {
 
     }
 
-    private String solveWordPuzzle() {
+    public String solveWordPuzzle() {
 
         for(int i = 0; i < words.size(); i++) {
             if(!solveWord(words.get(i))) {
