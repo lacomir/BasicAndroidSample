@@ -5,8 +5,13 @@ import org.opencv.core.Point;
 import java.util.ArrayList;
 
 /**
- * Created by Mirko on 16.4.2016.
+ * @author Miroslav Laco
+ * All rights reserved.
+ *
+ * Class for storing found merged line on image.
+ *
  */
+
 public class MergedLine {
 
     public Point start;

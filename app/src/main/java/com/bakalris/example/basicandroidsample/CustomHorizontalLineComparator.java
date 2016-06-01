@@ -3,8 +3,10 @@ package com.bakalris.example.basicandroidsample;
 import java.util.Comparator;
 
 /**
- * Created by Mirko on 16.4.2016.
+ * @author Miroslav Laco
+ * All rights reserved.
  */
+
 public class CustomHorizontalLineComparator implements Comparator<MergedLine> {
 
     @Override

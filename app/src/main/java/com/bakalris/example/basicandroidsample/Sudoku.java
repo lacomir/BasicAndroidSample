@@ -11,8 +11,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Mirko on 17.4.2016.
+ * @author Miroslav Laco
+ * All rights reserved.
+ *
+ * Class for storing griddle classified as Sudoku.
+ *
  */
+
 public class Sudoku extends Hlavolam {
 
     Letter[][] numbers;
@@ -40,7 +45,12 @@ public class Sudoku extends Hlavolam {
         this.numbers = numbers;
     }
 
-
+    /**
+     *
+     * Method for finding numbers in Sudoku squares.
+     *
+     * @param picture processed picture Class storing data required for finding of numbers in Sudoku squares.
+     */
     public void findNumbers(Picture picture) {
         int index = -1;
 
@@ -161,7 +171,12 @@ public class Sudoku extends Hlavolam {
         return;
     }
 
-
+    /**
+     *
+     * Method for creating DancingSudokuSolver, initialization and
+     * solving of Sudoku with implementation of Algorithm X.
+     *
+     */
     public void solveSudoku() {
 
         List<int[]> list = new ArrayList<>();

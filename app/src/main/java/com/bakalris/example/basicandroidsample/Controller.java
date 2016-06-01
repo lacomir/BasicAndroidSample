@@ -18,8 +18,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Mirko on 16.4.2016.
+ * @author Miroslav Laco
+ * All rights reserved.
  */
+
 public class Controller {
 
     public String file;
@@ -35,6 +37,14 @@ public class Controller {
 
     private static final String TAG = "Controller";
 
+    /**
+     *
+     * Init controller with images. Otherwise is controller meaningless.
+     *
+     * @param mRgba color image of griddle
+     * @param mGray gray image of griddle (must be the same as previous)
+     *
+     */
     Controller(Mat mRgba, Mat mGray) {
 
         file = new String();
@@ -44,23 +54,33 @@ public class Controller {
 
     }
 
-
+    /**
+     * Starting automatized processing of given images in init state.
+     */
     public void processImage() {
 
-        Log.e(TAG, "processImage: preprocessImage()");
         preprocessImage();
-        Log.e(TAG, "processImage: segmentImage()");
         segmentImage();
         if(isSudoku) {
-            Log.e(TAG, "processImage: computeCharacteristicVector()");
             computeCharacteristicVector();
-            Log.e(TAG, "processImage: resolveProblem()");
             recognizeCharacters();
         }
         resolveProblem();
 
     }
 
+    /**
+     * Preprocessing consits of these states:
+     *  1) blur grayscale image
+     *  2) threshold image
+     *  3) find lines
+     *  4) merge lines
+     *  5) find intersections of lines
+     *  6) find griddle quad
+     *  7) compute perspective matrix using found quad edges
+     *  8) perform perspective transformation
+     *
+     */
     public void preprocessImage() {
 
         Mat temp = new Mat(picture.grayscale.rows(),picture.grayscale.cols(),picture.grayscale.type());
@@ -114,6 +134,11 @@ public class Controller {
 
     }
 
+    /**
+     *
+     * Classification of griddle and call for appropriate griddle segmentation.
+     *
+     */
     public void segmentImage()
     {
 
@@ -152,23 +177,29 @@ public class Controller {
 
     }
 
+
+    /**
+     *
+     * Segmenting word puzzle using Tesseract.
+     *
+     */
     private void segmentOsemsmerovka() {
 
-
         Bitmap bmpLeft = Bitmap.createBitmap(picture.grayscale.cols(), picture.grayscale.rows(), Bitmap.Config.ARGB_8888);
-        Bitmap bmpRight = Bitmap.createBitmap(picture.thresholdedInv.cols(),picture.thresholdedInv.rows(), Bitmap.Config.ARGB_8888);
 
         Utils.matToBitmap(picture.grayscale, bmpLeft);
-        Utils.matToBitmap(picture.thresholdedInv, bmpRight);
 
         String s1 = OCRUtils.getOCRText(bmpLeft);
         Log.e(TAG, "segmentOsemsmerovka: Rotated gray>" + s1 );
 
-        String s2 = OCRUtils.getOCRText(bmpRight);
-        Log.e(TAG, "segmentOsemsmerovka: Rotated thresholded>" + s2 );
 
     }
 
+    /**
+     *
+     * Segmenting Sudoku by lines and their intersections. Finding numbers in Sudoku squares.
+     *
+     */
     public void segmentSudoku() {
 
         List<Point> pts = picture.poi.toList();
@@ -217,7 +248,11 @@ public class Controller {
 
     }
 
-
+    /**
+     *
+     * Compute custom characteristic vector for found characters.
+     *
+     */
     public void computeCharacteristicVector() {
 
         if(hlavolam == null)
@@ -235,7 +270,13 @@ public class Controller {
         return;
     }
 
-
+    /**
+     *
+     * Recognition of characters based on KNN using characteristic vector computed by computeCharacteristicVector().
+     * Not using computation of characteristic vector by computeCharacteristicVector() will result in recognition fail.
+     * This is due to train data of classifier, which are made up of characteristics computed by computeCharacteristicVector().
+     *
+     */
     public void recognizeCharacters() {
 
         KNearest knn = KNearestDigitRecognition.getInstance().getKnn();
@@ -255,7 +296,11 @@ public class Controller {
 
     }
 
-
+    /**
+     *
+     * Solve griddle based on griddle type.
+     *
+     */
     public void resolveProblem() {
 
         if (hlavolam == null)
@@ -278,7 +323,15 @@ public class Controller {
     }
 
 
-
+    /**
+     *
+     * This method is used if no Sudoku was detected on image.
+     * Draws found merged lines on transformed image.
+     *
+     * @param width width of phone screen
+     * @param height height of phone screen
+     * @return matrix containing image to draw on screen with highlited merged lines found on image
+     */
     public Mat drawMergedLinesAfterTransform(int width, int height) {
 
         Mat rgba = new Mat(picture.image.size(),picture.image.type());
@@ -307,6 +360,14 @@ public class Controller {
 
     }
 
+    /**
+     *
+     * This method is used to draw solved Sudoku on transformed image.
+     *
+     * @param width width of phone screen
+     * @param height height of phone screen
+     * @return matrix containing image to draw on screen with Solved Sudoku
+     */
     public Mat drawSudokuSquares(int width, int height) {
 
 
@@ -321,15 +382,6 @@ public class Controller {
         for(int i = 0; i < 9; i++)
         {
             for(int j = 0; j < 9; j++) {
-                Scalar color;
-                if(hlavolam.getLetters()[i][j].getHasChar())
-                   color = new Scalar(255,0,0);
-                else
-                    color = new Scalar(0,255,0);
-
-                //Imgproc.rectangle( rgba, hlavolam.getLetters()[i][j].rect.tl(), hlavolam.getLetters()[i][j].rect.br(), color, 2, 8, 0 );
-
-                Log.e(TAG, "drawSudokuSquares: Size>" + sols.size() + " IsEmpty> " + sols.isEmpty() + " String> " +sols.toString());
 
                 if(sols.isEmpty()) {
                     if(hlavolam.getLetters()[i][j].getHasChar()) {

@@ -20,10 +20,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-
 /**
- * Created by lukassos on 1/16/2016. All rights reserved.
+ * @author Lukáš Puchoň
+ * All rights reserved.
+ *
+ * Tesseract utils for text recognition on image. Requires tesseract train data for Tesseract initialization.
+ * Expects train data in Assets/tessdata folder. For train data based on slovak language we use slk.traineddata file.
+ *
  */
+
 public class OCRUtils {
     private static final String TAG = "OCRUtils";
     private static final String TESS_LANG = "slk";
@@ -140,47 +145,9 @@ public class OCRUtils {
 
         Log.v(TAG, "OCRed text: " + OCRedText);
 
-//        textAlert(OCRedText);
-
         return OCRedText;
     }
 
-    /*
-    public static PricesContainer findPrices(String ocrText) {
-        // first try, search for real numbers
-        float maxValue = 0.0f;
-
-        List<String> words = matchedWords(ocrText.replaceAll("\\.", ","), WORD_MATCHING_REGEXP_1);
-        for ( String word : words ) {
-            try {
-                float value = Float.valueOf(word.replaceAll(",","\\.")).floatValue();
-                Log.v(TAG, "found value: " + value);
-                if (maxValue < value) {
-                    maxValue = value;
-                }
-            }catch (NumberFormatException e){
-                e.printStackTrace();
-            }
-        }
-
-        if(maxValue <= 0.0){
-            //second try, search for integer numbers
-            words = matchedWords(ocrText, WORD_MATCHING_REGEXP_2);
-            for ( String word : words ) {
-                try {
-                    float value = Float.valueOf(word).floatValue();
-                    if (maxValue < value) {
-                        maxValue = value;
-                    }
-                }catch (NumberFormatException e){
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        return new PricesContainer(words, maxValue);
-    }
-*/
 
     private static List<String> matchedWords(String inputText, String wordMatchingRegexp1) {
         List<String> words = new ArrayList<String>();

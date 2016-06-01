@@ -11,33 +11,69 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Mirko on 16.4.2016.
+ * @author Miroslav Laco
+ * All rights reserved.
+ *
+ * Utils static class for storing math and image processing methods.
+ *
  */
+
 public class CustomMathOperations {
 
     public static final int ROTATE_LEFT = 0;
     public static final int ROTATE_RIGHT = 1;
 
 
-
+    /**
+     *
+     * Method for point subtraction.
+     *
+     * @param p1 First point
+     * @param p2 Second point
+     * @return p1-p2
+     */
     public static Point subtractPoints(Point p1, Point p2) {
 
         return new Point(p1.x - p2.x, p1.y - p2.y);
 
     }
 
+    /**
+     *
+     * Method for point addition.
+     *
+     * @param p1 First point
+     * @param p2 Second point
+     * @return p1+p2
+     */
     public static Point addPoints(Point p1, Point p2) {
 
         return new Point(p1.x + p2.x, p1.y + p2.y);
 
     }
 
+    /**
+     *
+     * Method for multiplication of 2 points
+     *
+     * @param p1 First point
+     * @param p2 Second point
+     * @return p1*p2
+     */
     public static Point multiplyPoints(Point p1, Point p2) {
 
         return new Point(p1.x * p2.x, p1.y * p2.y);
 
     }
 
+    /**
+     *
+     * Method for multiplication of point and a constant.
+     *
+     * @param p1 First point
+     * @param t constant
+     * @return p1*t
+     */
     public static Point multiplyPoints(Point p1, double t) {
 
         return new Point(p1.x * t, p1.y * t);
@@ -45,7 +81,14 @@ public class CustomMathOperations {
     }
 
 
-
+    /**
+     *
+     * Method for computing line segment length defined by start and end points.
+     *
+     * @param A Start point of line segment.
+     * @param B End point of line segment.
+     * @return length of line defined as AB
+     */
     public static double lineLength(Point A, Point B) {
 
         Point diff = subtractPoints(A,B);
@@ -55,7 +98,14 @@ public class CustomMathOperations {
     }
 
 
-
+    /**
+     *
+     * Method for computing squared distance of 2 points.
+     *
+     * @param p First point
+     * @param t Second point
+     * @return squared distance of p from t
+     */
     private static double DistanceToSquared( Point p, Point t )
     {
         double dX = p.x - t.x;
@@ -64,16 +114,41 @@ public class CustomMathOperations {
         return dX * dX + dY * dY;
     }
 
+    /**
+     *
+     * Method for computing distance of 2 points.
+     *
+     * @param p First point
+     * @param t Second point
+     * @return distance of p from t
+     */
     private static double DistanceTo( Point p, Point t )
     {
         return Math.sqrt(DistanceToSquared(p, t));
     }
 
+    /**
+     *
+     * Method for computing dot product od 2 points.
+     *
+     * @param p First point
+     * @param t Second point
+     * @return dot product of p and t
+     */
     private static double DotProduct( Point p, Point t )
     {
         return t.x * p.x + t.y * p.y;
     }
 
+    /**
+     *
+     * Method for computing distance of point to line segment.
+     *
+     * @param v start point of line segment
+     * @param w end point of line segment
+     * @param p point
+     * @return distance of p to line segment vw
+     */
     private static double DistanceFromLineSegmentToPoint( Point v, Point w, Point p)
     {
         double distSq = DistanceToSquared( w, v );
@@ -111,6 +186,14 @@ public class CustomMathOperations {
 
     }
 
+    /**
+     *
+     * Method for computing distance of point to line segment.
+     *
+     * @param l1 line segment defined by start and end points
+     * @param l2 point
+     * @return distance of p to line segment vw
+     */
     public static double pointLineDistance(Point[] l1, Point l2) {
 
 
@@ -119,15 +202,15 @@ public class CustomMathOperations {
     }
 
 
-
-
-
-
-
-
-
-
-
+    /**
+     *
+     * Method for checking if found intersection of 2 lines lays on both of 2 line segments.
+     *
+     * @param ab First line segment
+     * @param cd Second line segment
+     * @param q intersection point
+     * @return true if intersection belongs both segments, false if not
+     */
     public static Boolean intersectionBelongsSegments(Point[] ab, Point[] cd, Point q) {
         Point p = ab[0];
         Point r = ab[1];
@@ -145,6 +228,18 @@ public class CustomMathOperations {
         return false;
     }
 
+    /**
+     *
+     * Method for finding intersections of 2 line segments defined by 2 points each.
+     * Intersection must lay within image, otherwise line segments are considered to have no intersection.
+     * Intersection must lay on both line segments, otherwise line segments are considered to have no intersection.
+     *
+     * @param ab first line segment
+     * @param cd second line segment
+     * @param width width of image
+     * @param height height of image
+     * @return point of intersection if lines segments have one, returns Point(-1,-1) if not
+     */
     public static Point intersection(Point[] ab, Point[] cd, int width, int height) {
 
         Point A = ab[0];
@@ -176,17 +271,7 @@ public class CustomMathOperations {
         if(!intersectionBelongsSegments(ab,cd,r))
             return new Point(-1,-1); //false
 
-		/*
-		float abDistanceToX = min(abs(A.x - r.x),abs(B.x - r.x));
-		float abDistanceToY = min(abs(A.y - r.y),abs(B.y - r.y));
-		float cdDistanceToX = min(abs(C.x - r.x),abs(D.x - r.x));
-		float cdDistanceToY = min(abs(C.y - r.y),abs(D.y - r.y));
-		float maxDist = 20;
 
-		if(abDistanceToX > maxDist || abDistanceToY > maxDist || cdDistanceToX > maxDist || cdDistanceToY > maxDist)
-			return Point2f(-1,-1); //false
-
-		*/
 
         if(r.x >= 0 && r.x < width && r.y >=0 && r.y < height)
             return r; //true
@@ -196,7 +281,13 @@ public class CustomMathOperations {
     }
 
 
-
+    /**
+     *
+     * Method used to transform object of type MatOfPoint to type Mat.
+     *
+     * @param mop matrix of points
+     * @return matrix of points
+     */
     public static Mat getMat(MatOfPoint mop) {
 
         Point[] points = mop.toArray();
@@ -209,6 +300,13 @@ public class CustomMathOperations {
         return obj;
     }
 
+    /**
+     *
+     * Method used to transform object of type Mat to type MatOfPoint
+     *
+     * @param mat matrix of points
+     * @return matrix of points
+     */
     public static MatOfPoint getMatOfPoint(Mat mat) {
 
         List<Point> lp = new ArrayList<>();
@@ -222,13 +320,27 @@ public class CustomMathOperations {
         return mop;
     }
 
-
+    /**
+     *
+     * Method for obtaining aspect ratio of mask of character.
+     *
+     * @param mask matrix defining bounding rect
+     * @return mask aspect ratio
+     */
     public static double boundingRectAspectRatio(Mat mask) {
 
         return ((double) mask.cols() / (double) mask.rows());
 
     }
 
+    /**
+     *
+     * Method for obtaining ratio of ON pixels to OFF pixels in given matrix.
+     *
+     * @param mask matrix defining bounding rect
+     * @param pointsSize number of ON pixels within mask
+     * @return ratio of ON pixels to OFF pixels in mask
+     */
     public static double foregroundToBackgroundRatio(Mat mask, int pointsSize) {
 
         double total = mask.cols() * mask.rows();
@@ -237,6 +349,25 @@ public class CustomMathOperations {
 
     }
 
+    /**
+     *
+     * Method for computing custom characteristic moments of letters/numbers.
+     * Uses class RunningStats to compute statistics on the fly.
+     * Custom characteristic moments are made up of:
+     *  1) relative mean of letter
+     *  2) relation of middle of bounding box of letter to mean of letter in X direction
+     *  3) relation of middle of bounding box of letter to mean of letter in Y direction
+     *  4) relative of standard deviation of letter in X direction
+     *  5) relative of standard deviation of letter in Y direction
+     *  6) skewness of letter in X direction
+     *  7) skewness of letter in Y direction
+     *  7) Kurtosis of letter in X direction
+     *  7) Kurtosis of letter in Y direction
+     *
+     * @param mask bounding box of letter
+     * @param points ON pixels within bounding box of letter
+     * @return characteristic vector for given letter
+     */
     public static ArrayList<Double> computeMoments(Mat mask, ArrayList<Point> points) {
 
         RunningStats statX = new RunningStats();
@@ -281,16 +412,16 @@ public class CustomMathOperations {
 
     }
 
-    //0 for rotate left, 1 for rotate right
+
+    /**
+     *
+     * Method for rotating matrix.
+     *
+     * @param mat matrix to rotate
+     * @param direction direction of rotation; 0 for rotate left, 1 for rotate right
+     * @return rotated matrix
+     */
     public static Mat rotateMat(Mat mat, int direction) {
-
-        /*
-        Mat rotatedMat = new Mat(mat.rows(),mat.cols(),mat.type());
-        mat.copyTo(rotatedMat);
-
-        rotatedMat.t();
-        Core.flip(rotatedMat,rotatedMat,direction);
-        */
 
         Mat rotatedMat = new Mat(mat.rows(),mat.cols(),mat.type());
         mat.copyTo(rotatedMat);

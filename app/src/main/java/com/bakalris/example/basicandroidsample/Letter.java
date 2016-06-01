@@ -10,8 +10,13 @@ import org.opencv.ml.KNearest;
 import java.util.ArrayList;
 
 /**
- * Created by Mirko on 16.4.2016.
+ * @author Miroslav Laco
+ * All rights reserved.
+ *
+ * Class for storing single found letter/character on image with belonging area and characteristics of letter.
+ *
  */
+
 public class Letter {
 
     MatOfPoint segment;

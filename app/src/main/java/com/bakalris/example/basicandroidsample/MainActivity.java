@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -25,6 +26,10 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.common.api.GoogleApiClient;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -49,10 +54,14 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2, View.OnTouchListener {
-    private static final String TAG = "MainActivity";
-    public int mInt = 0;
+/**
+ * @author Miroslav Laco
+ * All rights reserved.
+ */
 
+public class MainActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2, View.OnTouchListener {
+
+    private static final String TAG = "MainActivity";
 
     /* must functions for opencv
     starte
@@ -64,6 +73,13 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     private Boolean touched = false;
     private Boolean processing = false;
     private Boolean afterProcessing = false;
+
+    private Mat mRgba;
+    private Mat mIntermediateMat;
+    private Mat mGray;
+    private Mat mProcessedMat;
+    private Size mFrameSize;
+
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -82,21 +98,6 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             }
         }
     };
-
-
-    private Mat mRgba;
-    private Mat mIntermediateMat;
-    private Mat mGray;
-    private Mat mProcessedMat;
-    private int mViewMode = -1;
-    private Size mFrameSize;
-    // 8U : 8 unsigned ints per color = 256 values
-    // C1 : only one color channel
-    // C3 : three channels for colors like BGR, RGB, YUV etc.
-    private static final int COLOR_TYPE = CvType.CV_8UC4;
-    private static final int GRAY_TYPE = CvType.CV_8UC1;
-
-
 
 
     @Override
@@ -155,8 +156,6 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             Log.e(TAG, "MainActivity:onCreate(): Tesseract not initialized!!");
         }
 
-
-
     }
 
     @Override
@@ -169,6 +168,9 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
     /**
      * Shows the progress UI and hides the login form.
+     *
+     * @param show true if progress bar is about to be shown, false if progress bar is about to be hidden
+     *
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     private void showProgress(final boolean show) {
@@ -236,7 +238,6 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         // (OpenCV for android has its bugs so don`t let your hopes too high)
 
 
-
         mRgba = new Mat(width, height, CvType.CV_8UC4);
         mIntermediateMat = new Mat(height, width, CvType.CV_8UC4);
         mGray = new Mat(width, height, CvType.CV_8UC1);
@@ -268,11 +269,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     @Override
     public Mat onCameraFrame(final CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
 
-//        if (mViewMode == DEMO) {
-//            return littleBitOfPreprocessing(inputFrame, roundRobinMode(COUNT_OF_DEMO_MODES, WHOLE_DEMO_TIME));
-//        }
-
-        return littleBitOfPreprocessing(inputFrame, -1);
+        return processImage(inputFrame);
 
     }
 
@@ -280,11 +277,11 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     @Override
     public boolean onTouch(View v, MotionEvent event) {
 
-        if(afterProcessing) {
+        if (afterProcessing) {
 
             afterProcessing = false;
 
-        }else if(!processing && !touched) {
+        } else if (!processing && !touched) {
 
             touched = true;
 
@@ -294,23 +291,30 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         return false;
     }
 
+    /**
+     *
+     * Method for processing captured image by device camera.
+     * Handles UI like showing progress bar while processing,
+     * showing processed image and showing camera capture.
+     * Creates controller instance and calls processImgae() method of Controller to process given image.
+     *
+     * @param inputFrame captured image by device camera
+     * @return matrix of image to be shown on phone screen
+     */
+    private Mat processImage(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
 
-
-
-    private Mat littleBitOfPreprocessing(CameraBridgeViewBase.CvCameraViewFrame inputFrame, int mode) {
-
-        if(touched && !processing) {
+        if (touched && !processing) {
 
             processing = true;
             showProgress(true);
 
-            Mat matRgba = new Mat(inputFrame.rgba().rows(),inputFrame.rgba().cols(),inputFrame.rgba().type());
+            Mat matRgba = new Mat(inputFrame.rgba().rows(), inputFrame.rgba().cols(), inputFrame.rgba().type());
             inputFrame.rgba().copyTo(matRgba);
-            Mat matGray = new Mat(inputFrame.gray().rows(),inputFrame.gray().cols(),inputFrame.gray().type());
+            Mat matGray = new Mat(inputFrame.gray().rows(), inputFrame.gray().cols(), inputFrame.gray().type());
             inputFrame.gray().copyTo(matGray);
 
-            CustomMathOperations.rotateMat(matRgba,CustomMathOperations.ROTATE_RIGHT).copyTo(mRgba);
-            CustomMathOperations.rotateMat(matGray,CustomMathOperations.ROTATE_RIGHT).copyTo(mGray);
+            CustomMathOperations.rotateMat(matRgba, CustomMathOperations.ROTATE_RIGHT).copyTo(mRgba);
+            CustomMathOperations.rotateMat(matGray, CustomMathOperations.ROTATE_RIGHT).copyTo(mGray);
 
             Controller controller = new Controller(mRgba, mGray);
             controller.processImage();
@@ -320,13 +324,13 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             afterProcessing = true;
             showProgress(false);
 
-            mProcessedMat = new Mat(mRgba.height(),mRgba.width(),mRgba.type());
+            mProcessedMat = new Mat(mRgba.height(), mRgba.width(), mRgba.type());
             mProcessedMat = controller.drawSudokuSquares(mRgba.height(), mRgba.width());
             return mProcessedMat;
 
         }
 
-        if(afterProcessing)
+        if (afterProcessing)
             return mProcessedMat;
         else
             return inputFrame.rgba();
@@ -334,11 +338,18 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
     }
 
-
-
+    /**
+     * Initialization of K-nearest classifier for number recognition.
+     * Stores trained classifier in Singleton KNearestDigitRecognition class.
+     * Uses digit-train-data.data located in Assets folder.
+     * Data are made up of custom characteristic vectors of number images.
+     *
+     * @return trained K-nearest classifier for digit recogniton.
+     * @throws IOException if can not find digit-train-data.data located in Assets folder
+     */
     private KNearest initDigitKnn() throws IOException {
 
-        BufferedReader reader =new BufferedReader( new InputStreamReader(getAssets().open("digit-train-data.data"), "UTF-8"));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(getAssets().open("digit-train-data.data"), "UTF-8"));
 
         String line;
 
@@ -353,7 +364,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             String[] sep = line.split(",");
             character.add(sep[0]);
 
-            for(int j = 1; j < sep.length; j++) {
+            for (int j = 1; j < sep.length; j++) {
                 portion.get(i).add(sep[j]);
             }
             i++;
@@ -365,11 +376,11 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         }
 
         Mat trainData = new Mat(portion.size(), portion.get(0).size(), CvType.CV_32FC1);
-        Mat trainClasses = new Mat(portion.size(),1, CvType.CV_32FC1);
+        Mat trainClasses = new Mat(portion.size(), 1, CvType.CV_32FC1);
 
-        for( i = 0; i < portion.size(); i++ ) {
-            for(int j = 0; j < portion.get(i).size(); j++) {
-                trainData.put(i,j, (float) Double.parseDouble(portion.get(i).get(j)));
+        for (i = 0; i < portion.size(); i++) {
+            for (int j = 0; j < portion.get(i).size(); j++) {
+                trainData.put(i, j, (float) Double.parseDouble(portion.get(i).get(j)));
             }
             trainClasses.put(i, 0, (float) Double.parseDouble(character.get(i)));
         }
@@ -382,9 +393,17 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
     }
 
+    /**
+     *
+     * KNN test with train data digit-train-data.data located in Assets folder.
+     * Expects to classify characteristic vector as number given to classifier in training state.
+     *
+     * @param knn trained K-nearest neighbor classifier
+     * @throws IOException if can not find digit-train-data.data located in Assets folder
+     */
     private void testKnn(KNearest knn) throws IOException {
 
-        BufferedReader reader =new BufferedReader( new InputStreamReader(getAssets().open("digit-train-data.data"), "UTF-8"));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(getAssets().open("digit-train-data.data"), "UTF-8"));
 
         String line;
 
@@ -395,9 +414,9 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         if ((line = reader.readLine()) != null) {
 
             String[] sep = line.split(",");
-            character= sep[0];
+            character = sep[0];
 
-            for(int j = 1; j < sep.length; j++) {
+            for (int j = 1; j < sep.length; j++) {
                 portion.add(sep[j]);
             }
 
@@ -413,23 +432,22 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         Mat trainData = new Mat(1, portion.size(), CvType.CV_32FC1);
         Mat trainClasses = new Mat(1, 1, CvType.CV_32FC1);
 
-        for(int i = 0; i < portion.size(); i++ ) {
+        for (int i = 0; i < portion.size(); i++) {
             trainData.put(0, i, (float) Double.parseDouble(portion.get(i)));
         }
 
-        float predict = knn.findNearest(trainData,1,trainClasses);
+        float predict = knn.findNearest(trainData, 1, trainClasses);
 
-        double[] d = trainClasses.get(0,0);
+        double[] d = trainClasses.get(0, 0);
 
-        System.out.println("Expected: '" + character + "' Got: '" + Integer.toString((int) predict) + "'");
+        Log.e(TAG, "testKnn: Expected: '" + character + "' Got: '" + Integer.toString((int) predict) + "'");
 
-        if(character.equals(Integer.toString((int) predict))) {
-            System.out.println("KNN IS READY, YOU ROCK!");
+        if (character.equals(Integer.toString((int) predict))) {
+            Log.e(TAG, "testKnn: KNN IS READY!");
         }
 
         return;
 
     }
-
 
 }

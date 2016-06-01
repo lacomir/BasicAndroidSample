@@ -4,8 +4,10 @@ import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 
 /**
- * Created by Mirko on 16.4.2016.
+ * @author Miroslav Laco
+ * All rights reserved.
  */
+
 public class Intersection {
 
     public int id;

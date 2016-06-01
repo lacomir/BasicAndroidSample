@@ -1,8 +1,12 @@
 package com.bakalris.example.basicandroidsample;
 
 /**
- * Created by Mirko on 16.4.2016.
+ * @author Miroslav Laco
  * Copyright: http://www.johndcook.com/blog/skewness_kurtosis/
+ *
+ * Class for computing statistics on the fly.
+ * Refactored code from http://www.johndcook.com/blog/skewness_kurtosis/.
+ *
  */
 
 public class RunningStats {

@@ -5,14 +5,26 @@ import android.util.Log;
 import java.util.ArrayList;
 
 /**
- * Created by Mirko on 7.5.2016.
+ * @author Miroslav Laco
+ * All rights reserved.
+ *
+ * Class for solving given word puzzle using greedy algorithm.
+ *
  */
+
 public class WordPuzzleSolver {
 
     private boolean puzzleBool[][];
     private ArrayList<ArrayList<String> > puzzle;
     private ArrayList<ArrayList<String> > words;
 
+    /**
+     *
+     *Initialization of WordPuzzleSolver with characters field of word puzzle and set of words.
+     *
+     * @param puzzle characters field of word puzzle
+     * @param words word set to be found in character set of word puzzle
+     */
     public WordPuzzleSolver(ArrayList<ArrayList<String> > puzzle, ArrayList<String> words) {
 
         this.puzzle = puzzle;
@@ -37,6 +49,12 @@ public class WordPuzzleSolver {
 
     }
 
+    /**
+     *
+     * Method used to start solving initialized word puzzle.
+     *
+     * @return string reprezenting solution of word puzzle
+     */
     public String solveWordPuzzle() {
 
         for(int i = 0; i < words.size(); i++) {
@@ -57,8 +75,13 @@ public class WordPuzzleSolver {
         return builder.toString();
     }
 
-
-
+    /**
+     *
+     *Method for finding given word in character field of word puzzle in all directions.
+     *
+     * @param find parsed word to be found in character field of word puzzle
+     * @return true if word was found, false if not
+     */
     private boolean solveWord(ArrayList<String> find) {
 
         int maxI = puzzle.size();

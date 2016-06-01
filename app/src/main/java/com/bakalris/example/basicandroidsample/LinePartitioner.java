@@ -5,17 +5,41 @@ import org.opencv.core.Point;
 import java.util.ArrayList;
 
 /**
- * Created by Mirko on 16.4.2016.
+ * @author Miroslav Laco
+ * Copyright: OpenCV
+ *
+ * Refactored code from OpenCV C++ library for desktop devices.
+ * Clustering method of elements based on predicate.
+ *
  */
+
 public class LinePartitioner {
 
     private int nclasses;
 
+    /**
+     *
+     * @return number of clusters found in given set.
+     */
     public int getNclasses() {
         return nclasses;
     }
 
+
+    /**
+     *
+     * Predicate method for clustering given set of lines.
+     * Two lines are clustered based on this predicate when their angle is not greater than 1 degree
+     * and their shortest distance is not greater than 10 pixels.
+     *
+     * @param _l1 first line defined by start and end points
+     * @param _l2 second line defined by start and end points
+     * @return true if lines are considered to be clustered, false if not
+     */
     private Boolean predicate(Point[] _l1, Point[] _l2) {
+
+        final int MAX_DIST = 10;
+        final double MAX_ANGLE = Math.cos(Math.PI / 60);
 
         double[] l1 = new double[4];
         l1[0] = _l1[0].x;
@@ -34,14 +58,14 @@ public class LinePartitioner {
 
         double product = (l1[2] - l1[0])*(l2[2] - l2[0]) + (l1[3] - l1[1])*(l2[3] - l2[1]);
 
-        if (Math.abs(product / (length1 * length2)) < Math.cos(Math.PI / 60))
+        if (Math.abs(product / (length1 * length2)) < MAX_ANGLE)
             return false;
 
         double distL1 = Math.min(CustomMathOperations.pointLineDistance(_l1, _l2[0]), CustomMathOperations.pointLineDistance(_l1, _l2[1]));
         double distL2 = Math.min(CustomMathOperations.pointLineDistance(_l2, _l1[0]), CustomMathOperations.pointLineDistance(_l2, _l1[1]));
         double dist = Math.min(distL1, distL2);
 
-        if(dist > 10)
+        if(dist > MAX_DIST)
             return false;
 
 
@@ -49,6 +73,13 @@ public class LinePartitioner {
         return true;
     }
 
+    /**
+     *
+     * Refactored clustering method from OpenCV C++ library for desktop devices.
+     *
+     * @param vec given set to be clustered
+     * @return field of clusters labels; row in field corresponds to row in given set; number in row represents cluster if of element in given set
+     */
     public int[] partition( ArrayList<Point[]> vec)
     {
         int i, j, N = vec.size();

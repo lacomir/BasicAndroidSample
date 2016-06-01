@@ -11,9 +11,7 @@ import java.util.Random;
 import java.util.UUID;
 
 /**
- * @author lukassos
- * @date 4/6/2016
- * @time 10:27 AM
+ * @author Miroslav Laco
  * All rights reserved.
  */
 
@@ -22,7 +20,6 @@ public class App extends SugarApp {
     private static final String LOGTAG = "App";
 
     private static Context mContext;
-    private static Random r;
     private static App sInstance;
 
     public static final String APP_DATA_PATH = Environment.getExternalStorageDirectory().toString() + "/Bakalarka/";
@@ -35,7 +32,6 @@ public class App extends SugarApp {
     public void onCreate() {
         super.onCreate();
         sInstance = this;
-        r = new Random();
         mContext = this;
 
     }

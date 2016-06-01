@@ -3,8 +3,14 @@ package com.bakalris.example.basicandroidsample;
 import org.opencv.ml.KNearest;
 
 /**
- * Created by Mirko on 19.4.2016.
+ * @author Miroslav Laco
+ * All rights reserved.
+ *
+ * Singleton class for storing K-nearest neighbors trained classifier.
+ * Uses K-nearest implementation from OpenCV.
+ *
  */
+
 public class KNearestDigitRecognition {
 
     private static KNearestDigitRecognition ourInstance = new KNearestDigitRecognition();

@@ -3,8 +3,13 @@ package com.bakalris.example.basicandroidsample;
 import java.util.ArrayList;
 
 /**
- * Created by Mirko on 7.5.2016.
+ * @author Miroslav Laco
+ * All rights reserved.
+ *
+ * Class for storing computer representation of word search puzzle recognized from image.
+ *
  */
+
 public class Osemsmerovka extends Hlavolam {
 
 

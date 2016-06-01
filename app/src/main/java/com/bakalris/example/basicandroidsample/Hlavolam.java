@@ -1,8 +1,10 @@
 package com.bakalris.example.basicandroidsample;
 
 /**
- * Created by Mirko on 17.4.2016.
+ * @author Miroslav Laco
+ * All rights reserved.
  */
+
 public abstract class Hlavolam {
 
     public int rows;

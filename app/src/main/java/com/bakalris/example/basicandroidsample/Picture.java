@@ -13,8 +13,13 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Created by Mirko on 16.4.2016.
+ * @author Miroslav Laco
+ * All rights reserved.
+ *
+ * Class for storing picture given for processing.
+ *
  */
+
 public class Picture {
 
     public Mat image;
@@ -103,7 +108,13 @@ public class Picture {
         perspectiveMatrix.copyTo(this.perspectiveMatrix);
     }
 
-
+    /**
+     *
+     * Method for merging similar found lines on image. Clusters line using LinePartitioner methods.
+     * Then merges them effectively.
+     *
+     * @param lines matrix of found lines on image
+     */
     public void mergeLines(Mat lines) {
 
         //System.out.println("DEBUGGING-lines- cols:" + Integer.toString(lines.cols()));
@@ -296,6 +307,12 @@ public class Picture {
 
     }
 
+    /**
+     *
+     * Method for finding all intersections of merged lines.
+     * Assigns intersections to corresponding lines.
+     *
+     */
     public void findPointsOfIntersection() {
 
         List<Point> points = new ArrayList<Point>();
@@ -345,7 +362,12 @@ public class Picture {
 
     }
 
-
+    /**
+     *
+     * Method for finding griddle quad on image. Griddle quad is considered as biggest quad on image.
+     * Effective algorithm to avoid greedy method.
+     *
+     */
     public void findIntersectionQuad() {
 
         int padLeft = -1;
@@ -446,6 +468,17 @@ public class Picture {
 
     }
 
+    /**
+     *
+     * Method for checking one combination of lines to see if they form quad.
+     *
+     * @param i iteration of combinations of lines
+     * @param a shifting of top line inside image
+     * @param b shifting of left line inside image
+     * @param c shifting of right line inside image
+     * @param d shifting of bottom line inside image
+     * @return list of points forming biggest quad on image; if lines do not make quad returns null
+     */
     private ArrayList<Point> findIntersectionQuadVar(int i, int a, int b, int c, int d) {
         Point got1 = new Point(-1,-1);
         Point got2 = new Point(-1,-1);
@@ -492,7 +525,12 @@ public class Picture {
         return null;
     }
 
-
+    /**
+     *
+     * Method creating perspective matrix from points of found griddle quad on image.
+     * Expects found quad, otherwise creating perspective matrix fails.
+     *
+     */
     public void createPerspectiveMatrix() {
 
         Point leftmin = intersectionQuad.get(0);
@@ -549,8 +587,14 @@ public class Picture {
 
     }
 
-
-    public void performPerspectiveTransformation() //perspektivna transformacia zatial iba pre grayscale image, thresholded image, points of intersections ciar a pre koncove body ciar
+    /**
+     *
+     * Method for performing perspective transformation of images, lines and intersections.
+     * From moment of calling this method we only work with transformed data.
+     * Expects created perspective matrix, otherwise perspective transformation fails.
+     *
+     */
+    public void performPerspectiveTransformation()
     {
         Mat transformedImage = Mat.zeros(transformedHeight,transformedWidth,image.type());
         Mat transformedGray = Mat.zeros(transformedHeight,transformedWidth,grayscale.type());
@@ -566,9 +610,6 @@ public class Picture {
 
         Mat obj_points = CustomMathOperations.getMat(poi);
         Mat scene_points = new Mat(4,1,CvType.CV_32FC2);
-
-        //System.out.println("obj_points rows: " + obj_points.rows());
-        //System.out.println("obj_points cols: " + obj_points.cols());
 
         Core.perspectiveTransform(obj_points, scene_points, perspectiveMatrix);
 
@@ -627,7 +668,11 @@ public class Picture {
 
     }
 
-
+    /**
+     *
+     * Method for getting rid of intersections situated out of found griddle quad.
+     *
+     */
     public void removeIntersectionsOutOfSudokuRect() {
 
         if(poi == null)
