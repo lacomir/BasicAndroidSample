@@ -1,9 +1,30 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        config {
+            keyAlias 'Bakalarka_keystore'
+            storeFile file('D:/skola/3rocnik/BC/fragment_keystore/fragment.jks')
+            keyPassword 'koF82zex'
+            storePassword 'koF82zex'
+        }
+
+        debug {
+            keyAlias 'Bakalarka_keystore'
+            storeFile file('D:/skola/3rocnik/BC/fragment_keystore/fragment.jks')
+            keyPassword 'koF82zex'
+            storePassword 'koF82zex'
+        }
+
+        release {
+            keyAlias 'Bakalarka_keystore'
+            storeFile file('D:/skola/3rocnik/BC/fragment_keystore/fragment.jks')
+            keyPassword 'koF82zex'
+            storePassword 'koF82zex'
+        }
+    }
     compileSdkVersion 23
     buildToolsVersion "23.0.2"
-
     defaultConfig {
         applicationId "com.bakalris.example.basicandroidsample"
         minSdkVersion 15
@@ -14,7 +35,13 @@ android {
     buildTypes {
         release {
             minifyEnabled false
+            debuggable true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+        debug {
+            debuggable true
+            signingConfig signingConfigs.debug
         }
     }
 }

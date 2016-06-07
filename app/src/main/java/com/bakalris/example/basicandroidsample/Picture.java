@@ -7,6 +7,7 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.objdetect.Objdetect;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -140,7 +141,9 @@ public class Picture {
 
         LinePartitioner partitioner = new LinePartitioner();
 
-        int[] labels = partitioner.partition(vectorOfLines);
+        ArrayList temp = vectorOfLines;
+
+        int[] labels = partitioner.partition(temp,0); // 0 for line partition
 
         //System.out.println("DEBUGGING-- pocet ciar:" + Integer.toString(vectorOfLines.size()));
         //System.out.println("DEBUGGING-- velkost pola labels:" + Integer.toString(labels.length));

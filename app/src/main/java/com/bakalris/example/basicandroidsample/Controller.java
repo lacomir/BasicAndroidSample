@@ -157,7 +157,8 @@ public class Controller {
         //if(picture.poi != null)
             //System.out.println(picture.poi.toList().toString());
 
-        if(picture.poi.rows() < 100) { //throw exception
+        if(picture.poi.rows() < 100) {
+            isSudoku = false;
             segmentOsemsmerovka();
             System.out.println("Segmentation of possible Sudoku failed. Can not find all sudoku squares.");
             return;
@@ -189,8 +190,8 @@ public class Controller {
 
         Utils.matToBitmap(picture.grayscale, bmpLeft);
 
-        String s1 = OCRUtils.getOCRText(bmpLeft);
-        Log.e(TAG, "segmentOsemsmerovka: Rotated gray>" + s1 );
+        hlavolam = OCRUtils.getOCRPixa(bmpLeft);
+
 
 
     }
@@ -318,6 +319,7 @@ public class Controller {
             Osemsmerovka osemsmerovka = (Osemsmerovka) hlavolam;
             puzzleSol = osemsmerovka.getSolution();
 
+            Log.e(TAG, "resolveProblem: Osemsmerovka solution: \"" + puzzleSol + "\"" );
         }
 
     }

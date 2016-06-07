@@ -53,7 +53,7 @@ public class WordPuzzleSolver {
      *
      * Method used to start solving initialized word puzzle.
      *
-     * @return string reprezenting solution of word puzzle
+     * @return string representing solution of word puzzle
      */
     public String solveWordPuzzle() {
 
@@ -92,7 +92,7 @@ public class WordPuzzleSolver {
 
             for(int j = 0; j < maxJ; j++) {
 
-                if(!(puzzle.get(i).get(j).equals(find.get(0))))
+                if(!puzzle.get(i).get(j).equals("_") && !(puzzle.get(i).get(j).equals(find.get(0))))
                     continue;
 
                 //right
@@ -108,7 +108,7 @@ public class WordPuzzleSolver {
                     boolean solved = true;
 
                     for(int x = 0; x < find.size()-1; x++, iter++) {
-                        if(!(puzzle.get(i).get(iter).equals(find.get(x + 1)))) {
+                        if(!puzzle.get(i).get(j).equals("_") && !(puzzle.get(i).get(iter).equals(find.get(x + 1)))) {
                             solved = false;
                             break;
                         }
@@ -143,7 +143,7 @@ public class WordPuzzleSolver {
                     boolean solved = true;
 
                     for(int x = 0; x < find.size()-1; x++, iter--) {
-                        if(!(puzzle.get(i).get(iter).equals(find.get(x + 1)))) {
+                        if(!puzzle.get(i).get(j).equals("_") && !(puzzle.get(i).get(iter).equals(find.get(x + 1)))) {
                             solved = false;
                             break;
                         }
@@ -177,7 +177,7 @@ public class WordPuzzleSolver {
                     boolean solved = true;
 
                     for(int x = 0; x < find.size()-1; x++, iter++) {
-                        if(!(puzzle.get(iter).get(j).equals(find.get(x + 1)))) {
+                        if(!puzzle.get(i).get(j).equals("_") && !(puzzle.get(iter).get(j).equals(find.get(x + 1)))) {
                             solved = false;
                             break;
                         }
@@ -211,7 +211,7 @@ public class WordPuzzleSolver {
                     boolean solved = true;
 
                     for(int x = 0; x < find.size()-1; x++, iter--) {
-                        if(!(puzzle.get(iter).get(j).equals(find.get(x + 1)))) {
+                        if(!puzzle.get(i).get(j).equals("_") && !(puzzle.get(iter).get(j).equals(find.get(x + 1)))) {
                             solved = false;
                             break;
                         }
@@ -246,7 +246,7 @@ public class WordPuzzleSolver {
                     boolean solved = true;
 
                     for(int x = 0; x < find.size()-1; x++, iterI++, iterJ++) {
-                        if(!(puzzle.get(iterI).get(iterJ).equals(find.get(x + 1)))) {
+                        if(!puzzle.get(i).get(j).equals("_") && !(puzzle.get(iterI).get(iterJ).equals(find.get(x + 1)))) {
                             solved = false;
                             break;
                         }
@@ -281,7 +281,7 @@ public class WordPuzzleSolver {
                     boolean solved = true;
 
                     for(int x = 0; x < find.size()-1; x++, iterI--, iterJ++) {
-                        if(!(puzzle.get(iterI).get(iterJ).equals(find.get(x + 1)))) {
+                        if(!puzzle.get(i).get(j).equals("_") && !(puzzle.get(iterI).get(iterJ).equals(find.get(x + 1)))) {
                             solved = false;
                             break;
                         }
@@ -315,7 +315,7 @@ public class WordPuzzleSolver {
                     boolean solved = true;
 
                     for(int x = 0; x < find.size()-1; x++, iterI++, iterJ--) {
-                        if(!(puzzle.get(iterI).get(iterJ).equals(find.get(x + 1)))) {
+                        if(!puzzle.get(i).get(j).equals("_") && !(puzzle.get(iterI).get(iterJ).equals(find.get(x + 1)))) {
                             solved = false;
                             break;
                         }
@@ -349,7 +349,7 @@ public class WordPuzzleSolver {
                     boolean solved = true;
 
                     for(int x = 0; x < find.size()-1; x++, iterI--, iterJ--) {
-                        if(!(puzzle.get(iterI).get(iterJ).equals(find.get(x + 1)))) {
+                        if(!puzzle.get(i).get(j).equals("_") && !(puzzle.get(iterI).get(iterJ).equals(find.get(x + 1)))) {
                             solved = false;
                             break;
                         }

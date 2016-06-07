@@ -1,5 +1,9 @@
 package com.bakalris.example.basicandroidsample;
 
+import android.graphics.Rect;
+import android.util.Log;
+import android.util.Pair;
+
 import org.opencv.core.Point;
 
 import java.util.ArrayList;
@@ -16,6 +20,11 @@ import java.util.ArrayList;
 public class LinePartitioner {
 
     private int nclasses;
+
+    public static final int LINES = 0;
+    public static final int OCR_PAIRS = 1;
+
+    public static final int OCR_MAX_DIFF = 10;
 
     /**
      *
@@ -36,7 +45,37 @@ public class LinePartitioner {
      * @param _l2 second line defined by start and end points
      * @return true if lines are considered to be clustered, false if not
      */
-    private Boolean predicate(Point[] _l1, Point[] _l2) {
+    private Boolean predicate(Object _l1, Object _l2, int mode) {
+
+        Boolean returnValue = false;
+
+        switch (mode) {
+            case LINES:
+                returnValue = predicateLines ((Point[]) _l1, (Point[]) _l2);
+                break;
+            case OCR_PAIRS:
+                returnValue = OCRPairsPredicate((Pair<String,Rect>) _l1,(Pair<String,Rect>) _l2);
+                break;
+        }
+
+        System.out.println("Return value: " + returnValue);
+        return returnValue;
+    }
+
+    private Boolean OCRPairsPredicate(Pair<String,Rect> _l1, Pair<String,Rect> _l2) {
+
+        int xDiff = Math.abs(_l1.second.centerY() - _l2.second.centerY());
+
+        System.out.println("Comparing diff: " + xDiff);
+
+        if(xDiff > OCR_MAX_DIFF)
+            return false;
+        else
+            return true;
+
+    }
+
+    private Boolean predicateLines(Point[] _l1, Point[] _l2) {
 
         final int MAX_DIST = 10;
         final double MAX_ANGLE = Math.cos(Math.PI / 60);
@@ -80,7 +119,7 @@ public class LinePartitioner {
      * @param vec given set to be clustered
      * @return field of clusters labels; row in field corresponds to row in given set; number in row represents cluster if of element in given set
      */
-    public int[] partition( ArrayList<Point[]> vec)
+    public int[] partition( ArrayList<Object> vec, int mode)
     {
         int i, j, N = vec.size();
         //const _Tp* vec = &_vec[0];
@@ -111,7 +150,7 @@ public class LinePartitioner {
 
             for( j = 0; j < N; j++ )
             {
-                if( i == j || !predicate(vec.get(i), vec.get(j)))
+                if( i == j || !predicate(vec.get(i), vec.get(j),mode))
                     continue;
                 int root2 = j;
 

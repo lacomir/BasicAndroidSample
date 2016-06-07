@@ -48,7 +48,10 @@ public class Osemsmerovka extends Hlavolam {
             ArrayList<String> row = new ArrayList<>();
 
             for(int j = 0; j < letterField.length; j++) {
-                row.add(letterField[i][j].character);
+                if(letterField[i][j].hasChar)
+                    row.add(letterField[i][j].character);
+                else
+                    row.add("_");
             }
 
             letters.add(row);

@@ -25,7 +25,7 @@ public class Letter {
     Mat mask;
     ArrayList<Point> points;
     ArrayList<Double> characteristics;
-    Boolean hasChar;
+    boolean hasChar;
     String character;
 
     public Letter() {
@@ -88,11 +88,11 @@ public class Letter {
         this.characteristics = characteristics;
     }
 
-    public Boolean getHasChar() {
+    public boolean getHasChar() {
         return hasChar;
     }
 
-    public void setHasChar(Boolean hasChar) {
+    public void setHasChar(boolean hasChar) {
         this.hasChar = hasChar;
     }
 
